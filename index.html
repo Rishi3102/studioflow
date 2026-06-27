@@ -1431,7 +1431,6 @@
     <div class="main-tabs">
       <div class="main-tab active" onclick="showTab('studio','projects')">Projects</div>
       <div class="main-tab" onclick="showTab('studio','upload')">Upload</div>
-      <div class="main-tab" onclick="showTab('studio','photos')">My Photos</div>
       <div class="main-tab" onclick="showTab('studio','selections')">Client Picks</div>
       <div class="main-tab" onclick="showTab('studio','settings')">My Studio</div>
     </div>
@@ -1453,6 +1452,32 @@
         <div class="form-row">
           <label>Client Access Code (clients use this to log in)</label>
           <input type="text" id="project-code" autocomplete="off" placeholder="e.g. RAVI2024" style="text-transform:uppercase;" />
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div>
+            <label style="display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--soft-gray);margin-bottom:0.35rem;">👰 Bride Photo Limit</label>
+            <input type="number" id="project-bride-limit" autocomplete="off" placeholder="e.g. 250" min="1" style="width:100%;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;background:var(--cream);color:var(--charcoal);outline:none;" />
+            <div style="font-size:0.65rem;color:var(--soft-gray);margin-top:0.25rem;">Max photos bride can select</div>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--soft-gray);margin-bottom:0.35rem;">🤵 Groom Photo Limit</label>
+            <input type="number" id="project-groom-limit" autocomplete="off" placeholder="e.g. 350" min="1" style="width:100%;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;background:var(--cream);color:var(--charcoal);outline:none;" />
+            <div style="font-size:0.65rem;color:var(--soft-gray);margin-top:0.25rem;">Max photos groom can select</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Couple Photo <span style="font-size:0.68rem;color:var(--soft-gray);font-weight:400;text-transform:none;letter-spacing:0;">(shown next to client name on their page)</span></label>
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <div style="position:relative;flex-shrink:0;">
+              <img id="couple-photo-preview" src="" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:none;" />
+              <div id="couple-photo-placeholder" style="width:70px;height:70px;border-radius:50%;background:var(--cream);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.6rem;">💑</div>
+            </div>
+            <label style="flex:1;cursor:pointer;">
+              <input type="file" id="couple-photo-input" accept="image/*" style="display:none;" onchange="handleCouplePhotoPreview(event)" />
+              <span class="btn-small" style="display:inline-block;">📷 Upload Couple Photo</span>
+              <div style="font-size:0.7rem;color:var(--soft-gray);margin-top:0.35rem;">Optional · shown on client login page</div>
+            </label>
+          </div>
         </div>
         <button class="btn-secondary" onclick="createProject()">Create Project</button>
         <!-- Project link display after creation -->
@@ -1493,10 +1518,18 @@
     <!-- Upload -->
     <div id="stab-upload" class="tab-content">
       <div class="section-title">Upload Photos</div>
+
+      <!-- Category overview grid -->
+      <div id="studio-category-overview" style="margin-bottom:1.2rem;display:none;">
+        <div style="font-size:0.78rem;font-weight:500;color:var(--soft-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.65rem;">Photos by Category</div>
+        <div id="studio-cat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;"></div>
+        <button onclick="closeStudioCatPhotoView()" id="studio-cat-back-btn" style="display:none;margin-top:0.75rem;" class="btn-secondary">← Back to Categories</button>
+        <div id="studio-cat-photos-view" style="display:none;margin-top:0.85rem;"></div>
+      </div>
       <div class="owner-card">
         <div class="form-row">
           <label>Project</label>
-          <select id="upload-project">
+          <select id="upload-project" onchange="loadStudioCategoryOverview()">
             <option value="">— Choose a project —</option>
           </select>
         </div>
@@ -1585,16 +1618,66 @@
 
     <!-- Client Selections (Owner view) -->
     <div id="stab-selections" class="tab-content">
-      <div class="section-title">Client Selections</div>
-      <div class="owner-card">
-        <div class="form-row">
-          <label>Select Project</label>
-          <select id="view-project" onchange="loadOwnerSelections()">
-            <option value="">— Choose a project —</option>
-          </select>
+      <div class="section-title">Client Picks</div>
+
+      <!-- Project picker card style -->
+      <div id="owner-project-picker" style="margin-bottom:1.2rem;">
+        <div style="font-size:0.75rem;color:var(--soft-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">Choose a Project</div>
+        <div id="owner-project-cards" style="display:flex;flex-direction:column;gap:0.6rem;">
+          <div class="loading"><div class="spinner"></div>Loading projects...</div>
         </div>
       </div>
-      <div id="owner-selections-view"></div>
+
+      <!-- Selections view shown after project picked -->
+      <div id="owner-selections-panel" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <button onclick="ownerBackToProjects()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.75rem;font-size:0.8rem;cursor:pointer;color:var(--soft-gray);font-family:'DM Sans',sans-serif;">Back</button>
+          <div>
+            <div id="owner-sel-project-name" style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;color:var(--charcoal);"></div>
+            <div id="owner-sel-project-meta" style="font-size:0.7rem;color:var(--soft-gray);margin-top:0.1rem;"></div>
+          </div>
+        </div>
+
+        <!-- Read-only counters -->
+        <div class="counters" id="owner-sel-counters" style="margin-bottom:1rem;">
+          <div class="counter-card">
+            <div class="counter-icon">❤️</div>
+            <div class="counter-num liked" id="osc-liked">0</div>
+            <div class="counter-label">Liked</div>
+          </div>
+          <div class="counter-card">
+            <div class="counter-icon">👰</div>
+            <div class="counter-num bride" id="osc-bride">0</div>
+            <div class="counter-label">Bride</div>
+            <div class="counter-limit" id="osc-bride-limit"></div>
+            <div class="progress-bar"><div class="progress-fill bride" id="osc-prog-bride" style="width:0%"></div></div>
+          </div>
+          <div class="counter-card">
+            <div class="counter-icon">🤵</div>
+            <div class="counter-num groom" id="osc-groom">0</div>
+            <div class="counter-label">Groom</div>
+            <div class="counter-limit" id="osc-groom-limit"></div>
+            <div class="progress-bar"><div class="progress-fill groom" id="osc-prog-groom" style="width:0%"></div></div>
+          </div>
+          <div class="counter-card">
+            <div class="counter-icon">📁</div>
+            <div class="counter-num custom1" id="osc-custom1">0</div>
+            <div class="counter-label" id="osc-label-c1">Folder 1</div>
+          </div>
+          <div class="counter-card">
+            <div class="counter-icon">📂</div>
+            <div class="counter-num custom2" id="osc-custom2">0</div>
+            <div class="counter-label" id="osc-label-c2">Folder 2</div>
+          </div>
+        </div>
+
+        <div id="owner-selections-view"></div>
+      </div>
+
+      <!-- hidden select kept for compatibility -->
+      <select id="view-project" style="display:none;" onchange="loadOwnerSelections()">
+        <option value="">-- Choose a project --</option>
+      </select>
     </div>
 
     <!-- Studio Settings -->
@@ -1618,21 +1701,30 @@
           </div>
           <input type="file" id="logo-input" accept="image/*" onchange="handleStudioLogo(event)" />
         </div>
+        <div class="form-row">
+          <label>Watermark Image <span style="font-size:0.68rem;color:var(--soft-gray);font-weight:400;text-transform:none;letter-spacing:0;">(applied on photos when watermark is enabled)</span></label>
+          <div class="logo-upload-area" onclick="document.getElementById('watermark-input').click()" style="border-color:var(--gold-light);">
+            <img id="studio-watermark-preview" class="logo-preview" style="display:none;border-radius:6px;object-fit:contain;background:#f0ece6;" />
+            <div id="studio-watermark-placeholder">
+              <div style="font-size:1.5rem;">🔏</div>
+              <div class="logo-upload-hint">Tap to upload your watermark image</div>
+              <div style="font-size:0.68rem;color:var(--gold);margin-top:0.3rem;">PNG with transparency recommended</div>
+            </div>
+          </div>
+          <input type="file" id="watermark-input" accept="image/*" onchange="handleStudioWatermark(event)" />
+          <div id="watermark-status" style="font-size:0.72rem;color:var(--soft-gray);margin-top:0.35rem;display:none;">✅ Watermark image saved — will be overlaid on photos when watermark is enabled</div>
+        </div>
         <button class="btn-secondary" onclick="saveStudioSettings()">Save Branding</button>
       </div>
 
       <div class="owner-card">
-        <h3>Custom Folders</h3>
-        <p style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:1rem;">Rename your two extra folders for any use.</p>
+        <h3>Custom Folder</h3>
+        <p style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:1rem;">Rename your extra folder for any use.</p>
         <div class="form-row">
-          <label>Custom Folder 1 Name</label>
+          <label>Custom Folder Name</label>
           <input type="text" id="custom-folder-1" autocomplete="off" placeholder="e.g. Candid Shots" />
         </div>
-        <div class="form-row">
-          <label>Custom Folder 2 Name</label>
-          <input type="text" id="custom-folder-2" autocomplete="off" placeholder="e.g. Family Portraits" />
-        </div>
-        <button class="btn-secondary" onclick="saveCustomFolders()">Save Folder Names</button>
+        <button class="btn-secondary" onclick="saveCustomFolders()">Save Folder Name</button>
       </div>
 
       <div class="owner-card">
@@ -1679,6 +1771,10 @@
 
     <!-- Browse -->
     <div id="ctab-browse" class="tab-content active">
+      <!-- Couple photo banner -->
+      <div id="client-couple-banner" style="display:none;text-align:center;padding:1.2rem 1rem 0.5rem;"></div>
+
+      <!-- Selection counters (compact) -->
       <div class="counters" id="client-counters">
         <div class="counter-card">
           <div class="counter-icon">❤️</div>
@@ -1706,57 +1802,54 @@
           <div class="counter-label" id="label-c1">Folder 1</div>
           <div class="counter-limit">Unlimited</div>
         </div>
-        <div class="counter-card" id="counter-c2">
-          <div class="counter-icon">📂</div>
-          <div class="counter-num custom2" id="count-custom2">0</div>
-          <div class="counter-label" id="label-c2">Folder 2</div>
-          <div class="counter-limit">Unlimited</div>
+      </div>
+
+      <!-- Category overview grid (only categories with photos) -->
+      <div id="client-cat-overview" style="padding:0.25rem 0;">
+        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--soft-gray);margin-bottom:0.6rem;">📸 Your Photo Albums</div>
+        <div id="client-cat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;">
+          <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div>
         </div>
       </div>
 
-      <div class="cat-filter" id="cat-filter-bar">
-        <button class="cat-btn active" onclick="filterCategory('all', this)">All</button>
-        <button class="cat-btn" onclick="filterCategory('Pottu Function', this)">Pottu Function</button>
-        <button class="cat-btn" onclick="filterCategory('Wedding Photos', this)">Wedding</button>
-        <button class="cat-btn" onclick="filterCategory('Reception Photos', this)">Reception</button>
-        <button class="cat-btn" onclick="filterCategory('Bride-seeing Ceremony', this)">Bride-seeing</button>
-        <button class="cat-btn" onclick="filterCategory('Haldi', this)">Haldi</button>
-        <button class="cat-btn" onclick="filterCategory('Bride to Be', this)">Bride to Be</button>
-        <button class="cat-btn" onclick="filterCategory('Post Wedding', this)">Post Wedding</button>
-        <button class="cat-btn" onclick="filterCategory('Pre Wedding', this)">Pre Wedding</button>
-        <button class="cat-btn" onclick="filterCategory('Post-Wedding Homecoming', this)">Homecoming</button>
-        <button class="cat-btn" id="cat-custom1-btn" onclick="filterCategory(customFolder1Name, this)"></button>
-        <button class="cat-btn" id="cat-custom2-btn" onclick="filterCategory(customFolder2Name, this)"></button>
+      <!-- Category photo view (shown when a category is opened) -->
+      <div id="client-cat-photos-view" style="display:none;">
+        <button id="client-cat-back-btn" onclick="closeClientCatView()" style="display:none;background:none;border:none;color:var(--gold);font-size:0.82rem;cursor:pointer;padding:0.3rem 0;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.35rem;">‹ Back to Albums</button>
+        <div id="client-cat-photos-content"></div>
       </div>
 
-      <div class="photo-grid" id="photo-grid">
-        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading photos...</div>
-      </div>
+      <!-- Hidden photo-grid kept for lightbox compatibility -->
+      <div class="photo-grid" id="photo-grid" style="display:none;"></div>
     </div>
 
     <!-- My Selections (Client) -->
     <div id="ctab-selections" class="tab-content">
-      <div id="client-selections-view">
-        <div class="loading"><div class="spinner"></div>Loading...</div>
+      <!-- Selection category overview grid -->
+      <div id="sel-cat-overview">
+        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--soft-gray);margin-bottom:0.75rem;">My Selections</div>
+        <div id="sel-cat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;"></div>
       </div>
+      <!-- Opened selection category detail view -->
+      <div id="sel-cat-detail" style="display:none;">
+        <button onclick="closeSelCatDetail()" style="background:none;border:none;color:var(--gold);font-size:0.82rem;cursor:pointer;padding:0.3rem 0;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.35rem;">&#8249; Back to Selections</button>
+        <div id="sel-cat-detail-content"></div>
+      </div>
+      <!-- kept for compatibility -->
+      <div id="client-selections-view" style="display:none;"></div>
     </div>
 
     <!-- My Photos Upload (Client's own photos) -->
     <div id="ctab-upload" class="tab-content">
       <div class="section-title">My Photo Collection</div>
-      <p style="font-size:0.82rem;color:var(--soft-gray);margin-bottom:1.2rem;">Upload photos you already have (from phone, family, etc.) to share with your studio or add to your album.</p>
+      <p style="font-size:0.82rem;color:var(--soft-gray);margin-bottom:1.2rem;">Upload your own photos (from phone, family, etc.) to share with your studio or add to your album.</p>
 
       <div class="owner-card">
-        <h3>Custom Folder Names</h3>
-        <p style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:0.75rem;">Rename your folders to anything you like.</p>
+        <h3>Custom Folder</h3>
+        <p style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:0.75rem;">Rename your folder to anything you like.</p>
         <div class="folder-name-row">
           <span style="font-size:0.85rem;">📁</span>
           <input type="text" id="client-folder-name-1" placeholder="e.g. Family Photos" />
           <button class="btn-small" onclick="saveClientFolderNames()">Save</button>
-        </div>
-        <div class="folder-name-row">
-          <span style="font-size:0.85rem;">📂</span>
-          <input type="text" id="client-folder-name-2" placeholder="e.g. Candid Shots" />
         </div>
       </div>
 
@@ -1765,9 +1858,7 @@
         <div class="form-row">
           <label>Add to Folder</label>
           <select id="client-upload-folder">
-            <option value="client-liked">❤️ Liked / Favourites</option>
-            <option value="client-custom1" id="client-folder-opt1">📁 My Extra Folder 1</option>
-            <option value="client-custom2" id="client-folder-opt2">📂 My Extra Folder 2</option>
+            <option value="client-custom1" id="client-folder-opt1">📁 My Custom Folder</option>
           </select>
         </div>
         <div class="upload-area" onclick="document.getElementById('client-file-input').click()">
@@ -2108,6 +2199,7 @@ async function studioLogin() {
       password: r.password, storagePlan: r.storage_plan || '25GB',
       logoUrl: r.logo_url || '', customFolder1: r.custom_folder1 || 'Custom Folder 1',
       customFolder2: r.custom_folder2 || 'Custom Folder 2',
+      watermarkUrl: r.watermark_url || '',
       whatsapp: r.whatsapp || PLATFORM_WHATSAPP, email: r.email || PLATFORM_EMAIL,
     };
     currentRole   = 'studio';
@@ -2203,7 +2295,11 @@ function enterApp() {
     brandEl.textContent = currentProject.name || 'My Photos';
     roleEl.textContent  = 'Client';
     badge.textContent   = currentProject.name;
-    if (currentStudio.logoUrl) {
+    // Show couple photo in header if available, else studio logo
+    const couplePhotoUrl = currentProject.couple_photo_url || '';
+    if (couplePhotoUrl) {
+      logoEl.innerHTML = `<img class="header-logo-img" src="${couplePhotoUrl}" style="border:2px solid var(--gold);" />`;
+    } else if (currentStudio.logoUrl) {
       logoEl.innerHTML = `<img class="header-logo-img" src="${currentStudio.logoUrl}" />`;
     } else {
       logoEl.innerHTML = '💍';
@@ -2213,6 +2309,14 @@ function enterApp() {
     updateCustomFolderLabels();
     document.getElementById('panel-client').style.display = 'flex';
     document.getElementById('panel-client').style.flexDirection = 'column';
+    // Show couple photo banner if available
+    const bannerEl = document.getElementById('client-couple-banner');
+    if (bannerEl && currentProject.couple_photo_url) {
+      bannerEl.style.display = 'block';
+      bannerEl.innerHTML = `
+        <img src="${currentProject.couple_photo_url}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--gold);box-shadow:0 4px 16px rgba(201,169,110,0.3);" />
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--charcoal);margin-top:0.5rem;">${currentProject.name}</div>`;
+    }
     loadClientPhotos();
     loadClientOwnPhotos();
     showReportButton();
@@ -2221,14 +2325,8 @@ function enterApp() {
 
 function updateCustomFolderLabels() {
   document.getElementById('label-c1').textContent = customFolder1Name;
-  document.getElementById('label-c2').textContent = customFolder2Name;
-  document.getElementById('cat-custom1-btn').textContent = customFolder1Name;
-  document.getElementById('cat-custom2-btn').textContent = customFolder2Name;
   const opt1 = document.getElementById('client-folder-opt1');
-  const opt2 = document.getElementById('client-folder-opt2');
   if(opt1) opt1.textContent = '📁 ' + customFolder1Name;
-  if(opt2) opt2.textContent = '📂 ' + customFolder2Name;
-  // Hide custom cat buttons if names are blank/default; they show anyway
 }
 
 function logout() {
@@ -2250,7 +2348,7 @@ function showTab(panel, name) {
   document.getElementById(`${prefix}-${name}`).classList.add('active');
   event.target.classList.add(panel === 'platform' ? 'platform-active' : 'active');
 
-  if (panel === 'studio' && name === 'upload') populateUploadProjects();
+  if (panel === 'studio' && name === 'upload') { populateUploadProjects(); loadStudioCategoryOverview(); }
   if (panel === 'studio' && name === 'photos') { populateStudioPhotosProjects(); loadStudioPhotos(); }
   if (panel === 'studio' && name === 'selections') populateViewProjects();
   if (panel === 'client' && name === 'selections') renderClientSelections();
@@ -2661,7 +2759,6 @@ async function handlePlatformLogo(event) {
 function loadStudioSettings_form() {
   document.getElementById('studio-display-name').value = currentStudio.displayName || '';
   document.getElementById('custom-folder-1').value = currentStudio.customFolder1 || 'Custom Folder 1';
-  document.getElementById('custom-folder-2').value = currentStudio.customFolder2 || 'Custom Folder 2';
   document.getElementById('studio-storage-plan').textContent = 'Plan: ' + (currentStudio.storagePlan || '25GB');
   if (currentStudio.logoUrl) {
     document.getElementById('studio-logo-preview').src = currentStudio.logoUrl;
@@ -2685,23 +2782,17 @@ async function saveStudioSettings() {
 
 async function saveCustomFolders() {
   const f1 = document.getElementById('custom-folder-1').value.trim() || 'Custom Folder 1';
-  const f2 = document.getElementById('custom-folder-2').value.trim() || 'Custom Folder 2';
   try {
     await sbFetch(`studios?code=eq.${encodeURIComponent(currentStudio.code)}`, {
-      method: 'PATCH', prefer: 'return=minimal', body: JSON.stringify({ custom_folder1: f1, custom_folder2: f2 })
+      method: 'PATCH', prefer: 'return=minimal', body: JSON.stringify({ custom_folder1: f1 })
     });
     studiosDB[currentStudio.code].customFolder1 = f1;
-    studiosDB[currentStudio.code].customFolder2 = f2;
     currentStudio.customFolder1 = f1;
-    currentStudio.customFolder2 = f2;
     customFolder1Name = f1;
-    customFolder2Name = f2;
     const opt1 = document.getElementById('upload-cat-custom1');
-    const opt2 = document.getElementById('upload-cat-custom2');
     if(opt1) opt1.textContent = f1;
-    if(opt2) opt2.textContent = f2;
-    showToast('✅ Folder names saved!');
-  } catch(e) { showToast('Error saving folders: ' + e.message); }
+    showToast('✅ Folder name saved!');
+  } catch(e) { showToast('Error saving folder: ' + e.message); }
 }
 
 async function handleStudioLogo(event) {
@@ -2817,6 +2908,8 @@ async function createProject() {
   const name   = document.getElementById('project-name').value.trim();
   const code   = document.getElementById('project-code').value.trim().toUpperCase();
   const wdate  = document.getElementById('project-date').value;
+  const brideLimit = parseInt(document.getElementById('project-bride-limit').value) || null;
+  const groomLimit = parseInt(document.getElementById('project-groom-limit').value) || null;
   if (!name || !code) { showToast('Please fill in name and access code'); return; }
   try {
     await sbFetch('wedding_projects', {
@@ -2824,12 +2917,16 @@ async function createProject() {
       body: JSON.stringify({
         name, client_code: code,
         studio_code: currentStudio.code,
-        wedding_date: wdate || null
+        wedding_date: wdate || null,
+        bride_limit: brideLimit,
+        groom_limit: groomLimit
       })
     });
     document.getElementById('project-name').value = '';
     document.getElementById('project-code').value = '';
     document.getElementById('project-date').value = '';
+    document.getElementById('project-bride-limit').value = '';
+    document.getElementById('project-groom-limit').value = '';
     showToast('✅ Project created!');
     // Show client link
     const baseUrl = window.location.origin + window.location.pathname;
@@ -2879,6 +2976,53 @@ function populateViewProjects() {
   const sel = document.getElementById('view-project');
   sel.innerHTML = '<option value="">— Choose a project —</option>' +
     projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  // Also render owner project cards
+  renderOwnerProjectCards();
+}
+
+function renderOwnerProjectCards() {
+  const container = document.getElementById('owner-project-cards');
+  if (!container) return;
+  if (!projects.length) {
+    container.innerHTML = '<p style="color:var(--soft-gray);font-size:0.82rem;padding:0.5rem 0;">No projects yet. Create one in the Projects tab.</p>';
+    return;
+  }
+  container.innerHTML = projects.map(p => {
+    const wdate = p.wedding_date ? new Date(p.wedding_date).toLocaleDateString('en-IN') : '';
+    const brideLimit = p.bride_limit || 1000;
+    const groomLimit = p.groom_limit || 1000;
+    const coupleImg = p.couple_photo_url
+      ? `<img src="${p.couple_photo_url}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);flex-shrink:0;" />`
+      : `<div style="width:44px;height:44px;border-radius:50%;background:var(--cream);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">💑</div>`;
+    return `<div onclick="ownerSelectProject('${p.id}')" style="background:white;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;display:flex;align-items:center;gap:0.85rem;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.boxShadow='0 2px 12px rgba(201,169,110,0.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow=''">
+      ${coupleImg}
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;color:var(--charcoal);">${p.name}</div>
+        <div style="font-size:0.68rem;color:var(--soft-gray);margin-top:0.2rem;">${wdate ? 'Wedding: ' + wdate + ' · ' : ''}Code: ${p.client_code}</div>
+        <div style="font-size:0.65rem;color:var(--soft-gray);margin-top:0.1rem;">👰 ${brideLimit} · 🤵 ${groomLimit} photo limit</div>
+      </div>
+      <div style="color:var(--soft-gray);font-size:1rem;">›</div>
+    </div>`;
+  }).join('');
+}
+
+async function ownerSelectProject(projectId) {
+  document.getElementById('view-project').value = projectId;
+  const proj = projects.find(p => p.id === projectId);
+  if (proj) {
+    document.getElementById('owner-sel-project-name').textContent = proj.name;
+    const wdate = proj.wedding_date ? ' · Wedding: ' + new Date(proj.wedding_date).toLocaleDateString('en-IN') : '';
+    document.getElementById('owner-sel-project-meta').textContent = `Code: ${proj.client_code}${wdate}`;
+  }
+  document.getElementById('owner-project-picker').style.display = 'none';
+  document.getElementById('owner-selections-panel').style.display = 'block';
+  await loadOwnerSelections();
+}
+
+function ownerBackToProjects() {
+  document.getElementById('owner-project-picker').style.display = 'block';
+  document.getElementById('owner-selections-panel').style.display = 'none';
+  document.getElementById('owner-selections-view').innerHTML = '';
 }
 
 function ownerViewProject(projectId) {
@@ -2889,8 +3033,7 @@ function ownerViewProject(projectId) {
   document.querySelectorAll('#panel-studio .tab-content').forEach(t => t.classList.remove('active'));
   document.getElementById('stab-selections').classList.add('active');
   populateViewProjects();
-  document.getElementById('view-project').value = projectId;
-  loadOwnerSelections();
+  ownerSelectProject(projectId);
 }
 
 // ══════════════════════════════════════════
@@ -3055,6 +3198,7 @@ async function handleFileUpload(event) {
   }
   status.textContent = `✅ ${done} photo(s) uploaded!${watermarkEnabled ? ' (with watermark)' : ''}`;
   event.target.value = '';
+  loadStudioCategoryOverview();
   setTimeout(() => { progress.style.display = 'none'; fill.style.width = '0%'; }, 3000);
 }
 
@@ -3068,47 +3212,72 @@ async function loadOwnerSelections() {
   el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading…</div>';
   try {
     const sels = await sbFetch(`selections?project_id=eq.${projectId}&select=*,photos(*)`);
-    renderOwnerSelections(sels, el);
+    const proj = projects.find(p => p.id === projectId) || null;
+    renderOwnerSelections(sels, el, proj);
   } catch(e) {
     el.innerHTML = '<p style="color:red;font-size:0.8rem;">Error loading.</p>';
   }
 }
 
-function renderOwnerSelections(sels, el) {
+function renderOwnerSelections(sels, el, project) {
   const f1Name = customFolder1Name;
   const f2Name = customFolder2Name;
+  const brideLimit = (project && project.bride_limit) || 1000;
+  const groomLimit = (project && project.groom_limit) || 1000;
   const byType = { liked: [], bride: [], groom: [], custom1: [], custom2: [] };
   sels.forEach(s => { if (byType[s.selection_type]) byType[s.selection_type].push(s); });
+
+  // Update owner counters
+  document.getElementById('osc-liked').textContent   = byType.liked.length;
+  document.getElementById('osc-bride').textContent   = byType.bride.length;
+  document.getElementById('osc-groom').textContent   = byType.groom.length;
+  document.getElementById('osc-custom1').textContent = byType.custom1.length;
+  document.getElementById('osc-custom2').textContent = byType.custom2.length;
+  document.getElementById('osc-bride-limit').textContent = `${byType.bride.length}/${brideLimit}`;
+  document.getElementById('osc-groom-limit').textContent = `${byType.groom.length}/${groomLimit}`;
+  document.getElementById('osc-prog-bride').style.width = `${Math.min((byType.bride.length / brideLimit) * 100, 100)}%`;
+  document.getElementById('osc-prog-groom').style.width = `${Math.min((byType.groom.length / groomLimit) * 100, 100)}%`;
+  document.getElementById('osc-label-c1').textContent = f1Name;
+  document.getElementById('osc-label-c2').textContent = f2Name;
+
   const sections = [
     { key: 'liked',   label: '❤️ Liked Photos',  count: byType.liked.length },
-    { key: 'bride',   label: '👰 Bride Album',    count: `${byType.bride.length} / 1000` },
-    { key: 'groom',   label: '🤵 Groom Album',    count: `${byType.groom.length} / 1000` },
+    { key: 'bride',   label: '👰 Bride Album',    count: `${byType.bride.length} / ${brideLimit}` },
+    { key: 'groom',   label: '🤵 Groom Album',    count: `${byType.groom.length} / ${groomLimit}` },
     { key: 'custom1', label: `📁 ${f1Name}`,       count: byType.custom1.length },
     { key: 'custom2', label: `📂 ${f2Name}`,       count: byType.custom2.length },
   ];
-  el.innerHTML = sections.map(s => `
-    <div class="selection-section">
+  el.innerHTML = sections.map(s => {
+    if (byType[s.key].length === 0) {
+      return `<div class="selection-section">
+        <div class="selection-header">
+          <div class="selection-dot ${s.key}"></div>
+          <div class="selection-title">${s.label}</div>
+          <div class="selection-count">${s.count}</div>
+        </div>
+        <div class="empty-state"><div class="empty-icon">📭</div><p>No photos selected yet</p></div>
+      </div>`;
+    }
+    const urls = byType[s.key].map(sel => sel.photos?.url).filter(Boolean);
+    return `<div class="selection-section">
       <div class="selection-header">
         <div class="selection-dot ${s.key}"></div>
         <div class="selection-title">${s.label}</div>
         <div class="selection-count">${s.count}</div>
       </div>
-      ${byType[s.key].length === 0
-        ? `<div class="empty-state"><div class="empty-icon">📭</div><p>No photos selected yet</p></div>`
-        : `<div class="photo-grid">${byType[s.key].map(sel => `
-            <div class="photo-card" onclick="openLightbox([${JSON.stringify(sel.photos?.url)}], 0, '${sel.photos?.category || ''}')">
-              <div class="photo-img-wrap">
-                <img src="${sel.photos?.url}" loading="lazy" />
-                <div class="photo-zoom-hint">🔍 View</div>
-              </div>
-              <div style="padding:0.35rem 0.5rem;">
-                <span class="category-badge">${sel.photos?.category || ''}</span>
-              </div>
-            </div>`).join('')}
-          </div>`
-      }
-    </div>
-  `).join('');
+      <div class="photo-grid">${byType[s.key].map((sel, i) => `
+        <div class="photo-card" onclick="openLightbox(${JSON.stringify(urls)}, ${i}, '${s.label}')">
+          <div class="photo-img-wrap">
+            <img src="${sel.photos?.url || ''}" loading="lazy" />
+            <div class="photo-zoom-hint">🔍 View</div>
+          </div>
+          <div style="padding:0.35rem 0.5rem;">
+            <span class="category-badge">${sel.photos?.category || ''}</span>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ══════════════════════════════════════════
@@ -3118,10 +3287,143 @@ async function loadClientPhotos() {
   try {
     allPhotos = await sbFetch(`photos?project_id=eq.${currentProject.id}&select=*&order=created_at.asc`);
     await loadSelectionsData();
-    renderPhotoGrid();
+    renderClientCategoryOverview();
   } catch(e) {
-    document.getElementById('photo-grid').innerHTML = '<p style="color:red;font-size:0.8rem;grid-column:1/-1">Error loading photos.</p>';
+    document.getElementById('client-cat-grid').innerHTML = '<p style="color:red;font-size:0.8rem;grid-column:1/-1">Error loading photos.</p>';
   }
+}
+
+// ── Category icons map ──
+const CAT_ICONS = {
+  'Pottu Function':'🪴','Wedding Photos':'💒','Reception Photos':'🎉',
+  'Bride-seeing Ceremony':'💍','Haldi':'🌼','Bride to Be':'👰',
+  'Post Wedding':'🏠','Pre Wedding':'🌅','Post-Wedding Homecoming':'🏡'
+};
+
+function renderClientCategoryOverview() {
+  const gridEl = document.getElementById('client-cat-grid');
+  if (!gridEl) return;
+  // Group photos by category — only categories that actually have photos
+  const catMap = {};
+  allPhotos.forEach(p => {
+    if (!p.category) return;
+    if (!catMap[p.category]) catMap[p.category] = [];
+    catMap[p.category].push(p);
+  });
+  const cats = Object.keys(catMap);
+  if (!cats.length) {
+    gridEl.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📷</div><p>No photos uploaded yet</p></div>';
+    return;
+  }
+  gridEl.innerHTML = cats.map(cat => {
+    const photos = catMap[cat];
+    const thumb = photos[0]?.url || '';
+    const icon = CAT_ICONS[cat] || '📁';
+    return `
+    <div onclick="openClientCatPhotos('${cat.replace(/'/g,"\\'")}')"
+      style="background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.18s;box-shadow:0 1px 4px rgba(0,0,0,0.04);"
+      onmouseover="this.style.borderColor='var(--gold)';this.style.boxShadow='0 4px 12px rgba(201,169,110,0.18)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.04)'">
+      <div style="height:100px;background:var(--cream);position:relative;overflow:hidden;">
+        ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;">${icon}</div>`}
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.45));padding:0.4rem 0.6rem;">
+          <div style="font-size:0.65rem;color:white;font-weight:500;">${photos.length} photo${photos.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+      <div style="padding:0.55rem 0.7rem;">
+        <div style="font-size:0.8rem;font-weight:500;color:var(--charcoal);">${icon} ${cat}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openClientCatPhotos(cat) {
+  const overviewEl = document.getElementById('client-cat-overview');
+  const viewEl = document.getElementById('client-cat-photos-view');
+  const backBtn = document.getElementById('client-cat-back-btn');
+  const contentEl = document.getElementById('client-cat-photos-content');
+  if (!viewEl || !contentEl) return;
+  if (overviewEl) overviewEl.style.display = 'none';
+  viewEl.style.display = 'block';
+  if (backBtn) backBtn.style.display = 'flex';
+
+  // Filter photos for this category
+  const catPhotos = allPhotos.filter(p => p.category === cat);
+  const icon = CAT_ICONS[cat] || '📁';
+  if (!catPhotos.length) {
+    contentEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📷</div><p>No photos in this album</p></div>`;
+    return;
+  }
+  const urls = catPhotos.map(p => p.url);
+  // Store these as the current lbPhotos for lightbox
+  lbPhotos = catPhotos;
+  contentEl.innerHTML = `
+    <div style="font-size:0.9rem;font-weight:500;color:var(--charcoal);margin-bottom:0.75rem;">${icon} ${cat} <span style="font-size:0.72rem;color:var(--soft-gray);font-weight:400;">(${catPhotos.length} photos)</span></div>
+    <div class="photo-grid">
+      ${catPhotos.map((photo, idx) => {
+        const sel = selections[photo.id] || [];
+        const hasLiked = sel.includes('liked');
+        const hasBride = sel.includes('bride');
+        const hasGroom = sel.includes('groom');
+        const hasC1    = sel.includes('custom1');
+        const borderClass = hasLiked ? 'selected-liked' : hasBride ? 'selected-bride' : hasGroom ? 'selected-groom' : hasC1 ? 'selected-custom1' : '';
+        return `
+        <div class="photo-card ${borderClass}" id="card-${photo.id}">
+          <div class="photo-img-wrap" onclick="openLightboxFromCatGrid(${idx}, ${JSON.stringify(catPhotos.map(p=>p.id))})">
+            <img src="${photo.url}" loading="lazy"/>
+            <div class="photo-zoom-hint">🔍 View</div>
+            <div class="photo-badges">
+              ${hasLiked ? '<span class="badge liked">❤️</span>' : ''}
+              ${hasBride ? '<span class="badge bride">👰</span>' : ''}
+              ${hasGroom ? '<span class="badge groom">🤵</span>' : ''}
+              ${hasC1    ? '<span class="badge custom1">📁</span>' : ''}
+            </div>
+          </div>
+          <div class="photo-actions">
+            <button class="action-btn ${hasLiked ? 'active-liked' : ''}" onclick="toggleSelectionAndRefreshCat('${photo.id}','liked','${cat.replace(/'/g,"\\'")}')">
+              ${hasLiked ? '❤️ Liked' : '🤍 Like'}
+            </button>
+            <button class="action-btn ${hasBride ? 'active-bride' : ''}" onclick="toggleSelectionAndRefreshCat('${photo.id}','bride','${cat.replace(/'/g,"\\'")}')">
+              ${hasBride ? '👰 In Bride Album' : '+ Bride Album'}
+            </button>
+            <button class="action-btn ${hasGroom ? 'active-groom' : ''}" onclick="toggleSelectionAndRefreshCat('${photo.id}','groom','${cat.replace(/'/g,"\\'")}')">
+              ${hasGroom ? '🤵 In Groom Album' : '+ Groom Album'}
+            </button>
+            <button class="action-btn ${hasC1 ? 'active-custom1' : ''}" onclick="toggleSelectionAndRefreshCat('${photo.id}','custom1','${cat.replace(/'/g,"\\'")}')">
+              ${hasC1 ? '📁 ' + customFolder1Name : '+ ' + customFolder1Name}
+            </button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function toggleSelectionAndRefreshCat(photoId, type, cat) {
+  await toggleSelection(photoId, type);
+  // Re-render the current open category to reflect button state changes
+  openClientCatPhotos(cat);
+}
+
+function openLightboxFromCatGrid(idx, photoIds) {
+  // set lbPhotos to objects for lightbox so actions work
+  lbPhotos = photoIds.map(id => allPhotos.find(p => p.id === id)).filter(Boolean);
+  lbIndex = idx;
+  currentLbPhotoId = lbPhotos[idx]?.id || null;
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  showLbPhoto();
+}
+
+function closeClientCatView() {
+  const overviewEl = document.getElementById('client-cat-overview');
+  const viewEl = document.getElementById('client-cat-photos-view');
+  const backBtn = document.getElementById('client-cat-back-btn');
+  const contentEl = document.getElementById('client-cat-photos-content');
+  if (overviewEl) overviewEl.style.display = 'block';
+  if (viewEl) viewEl.style.display = 'none';
+  if (backBtn) backBtn.style.display = 'none';
+  if (contentEl) contentEl.innerHTML = '';
 }
 
 async function loadSelectionsData() {
@@ -3137,23 +3439,23 @@ async function loadSelectionsData() {
 }
 
 function updateCounters() {
-  let liked = 0, bride = 0, groom = 0, c1 = 0, c2 = 0;
+  let liked = 0, bride = 0, groom = 0, c1 = 0;
   Object.values(selections).forEach(types => {
     if (types.includes('liked'))   liked++;
     if (types.includes('bride'))   bride++;
     if (types.includes('groom'))   groom++;
     if (types.includes('custom1')) c1++;
-    if (types.includes('custom2')) c2++;
   });
+  const brideLimit = currentProject.bride_limit || 1000;
+  const groomLimit = currentProject.groom_limit || 1000;
   document.getElementById('count-liked').textContent   = liked;
   document.getElementById('count-bride').textContent   = bride;
   document.getElementById('count-groom').textContent   = groom;
   document.getElementById('count-custom1').textContent = c1;
-  document.getElementById('count-custom2').textContent = c2;
-  document.getElementById('limit-bride').textContent = `${bride}/1000`;
-  document.getElementById('limit-groom').textContent = `${groom}/1000`;
-  document.getElementById('prog-bride').style.width = `${Math.min(bride / 10, 100)}%`;
-  document.getElementById('prog-groom').style.width = `${Math.min(groom / 10, 100)}%`;
+  document.getElementById('limit-bride').textContent = `${bride}/${brideLimit}`;
+  document.getElementById('limit-groom').textContent = `${groom}/${groomLimit}`;
+  document.getElementById('prog-bride').style.width = `${Math.min((bride / brideLimit) * 100, 100)}%`;
+  document.getElementById('prog-groom').style.width = `${Math.min((groom / groomLimit) * 100, 100)}%`;
 }
 
 function filterCategory(cat, btn) {
@@ -3209,9 +3511,6 @@ function renderPhotoGrid() {
           <button class="action-btn ${hasC1 ? 'active-custom1' : ''}" onclick="toggleSelection('${photo.id}', 'custom1')">
             ${hasC1 ? '📁 ' + customFolder1Name : '+ ' + customFolder1Name}
           </button>
-          <button class="action-btn ${hasC2 ? 'active-custom2' : ''}" onclick="toggleSelection('${photo.id}', 'custom2')">
-            ${hasC2 ? '📂 ' + customFolder2Name : '+ ' + customFolder2Name}
-          </button>
         </div>
       </div>
     `;
@@ -3226,7 +3525,8 @@ async function toggleSelection(photoId, type) {
   const isSelected = sel.includes(type);
   if (!isSelected && (type === 'bride' || type === 'groom')) {
     const count = Object.values(selections).filter(s => s.includes(type)).length;
-    if (count >= 1000) { showToast(`${type === 'bride' ? 'Bride' : 'Groom'} Album is full (1000)`); return; }
+    const limit = type === 'bride' ? (currentProject.bride_limit || 1000) : (currentProject.groom_limit || 1000);
+    if (count >= limit) { showToast(`${type === 'bride' ? 'Bride' : 'Groom'} Album is full (${limit})`); return; }
   }
   try {
     if (isSelected) {
@@ -3256,22 +3556,20 @@ function refreshCard(photoId) {
   const hasBride  = sel.includes('bride');
   const hasGroom  = sel.includes('groom');
   const hasC1     = sel.includes('custom1');
-  const hasC2     = sel.includes('custom2');
-  const borderClass = hasLiked ? 'selected-liked' : hasBride ? 'selected-bride' : hasGroom ? 'selected-groom' : hasC1 ? 'selected-custom1' : hasC2 ? 'selected-custom2' : '';
+  const borderClass = hasLiked ? 'selected-liked' : hasBride ? 'selected-bride' : hasGroom ? 'selected-groom' : hasC1 ? 'selected-custom1' : '';
   card.className = `photo-card ${borderClass}`;
-  card.querySelector('.photo-badges').innerHTML =
+  const badgesEl = card.querySelector('.photo-badges');
+  if (badgesEl) badgesEl.innerHTML =
     `${hasLiked ? '<span class="badge liked">❤️</span>' : ''}
      ${hasBride ? '<span class="badge bride">👰</span>' : ''}
      ${hasGroom ? '<span class="badge groom">🤵</span>' : ''}
-     ${hasC1 ? '<span class="badge custom1">📁</span>' : ''}
-     ${hasC2 ? '<span class="badge custom2">📂</span>' : ''}`;
+     ${hasC1 ? '<span class="badge custom1">📁</span>' : ''}`;
   const btns = card.querySelectorAll('.action-btn');
   const states = [
     { active: hasLiked,  cls: 'active-liked',  on: `❤️ Liked`, off: `🤍 Like` },
     { active: hasBride,  cls: 'active-bride',  on: `👰 In Bride Album`, off: `+ Bride Album` },
     { active: hasGroom,  cls: 'active-groom',  on: `🤵 In Groom Album`, off: `+ Groom Album` },
     { active: hasC1,     cls: 'active-custom1', on: `📁 ${customFolder1Name}`, off: `+ ${customFolder1Name}` },
-    { active: hasC2,     cls: 'active-custom2', on: `📂 ${customFolder2Name}`, off: `+ ${customFolder2Name}` },
   ];
   states.forEach((s, i) => {
     if (!btns[i]) return;
@@ -3296,47 +3594,111 @@ async function removeFromSelection(photoId, type) {
 //  CLIENT: MY SELECTIONS
 // ══════════════════════════════════════════
 function renderClientSelections() {
-  const el = document.getElementById('client-selections-view');
-  const f1 = customFolder1Name, f2 = customFolder2Name;
-  const byType = { liked: [], bride: [], groom: [], custom1: [], custom2: [] };
+  const f1 = customFolder1Name;
+  const byType = { liked: [], bride: [], groom: [], custom1: [] };
   Object.entries(selections).forEach(([photoId, types]) => {
     const photo = allPhotos.find(p => p.id === photoId);
     if (!photo) return;
     types.forEach(t => { if (byType[t]) byType[t].push(photo); });
   });
+  const brideLimit = currentProject.bride_limit || 1000;
+  const groomLimit = currentProject.groom_limit || 1000;
   const sections = [
-    { key: 'liked',   label: '❤️ Liked Photos',  count: `${byType.liked.length} photos` },
-    { key: 'bride',   label: '👰 Bride Album',    count: `${byType.bride.length} / 1000` },
-    { key: 'groom',   label: '🤵 Groom Album',    count: `${byType.groom.length} / 1000` },
-    { key: 'custom1', label: `📁 ${f1}`,           count: `${byType.custom1.length} photos` },
-    { key: 'custom2', label: `📂 ${f2}`,           count: `${byType.custom2.length} photos` },
+    { key: 'liked',   label: '❤️ Liked Photos',  count: byType.liked.length,  limit: null,       icon: '❤️', color: 'var(--liked)' },
+    { key: 'bride',   label: '👰 Bride Album',    count: byType.bride.length,  limit: brideLimit, icon: '👰', color: 'var(--bride)' },
+    { key: 'groom',   label: '🤵 Groom Album',    count: byType.groom.length,  limit: groomLimit, icon: '🤵', color: 'var(--groom)' },
+    { key: 'custom1', label: `📁 ${f1}`,           count: byType.custom1.length, limit: null,     icon: '📁', color: 'var(--success)' },
   ];
-  el.innerHTML = sections.map(s => `
-    <div class="selection-section">
-      <div class="selection-header">
-        <div class="selection-dot ${s.key}"></div>
-        <div class="selection-title">${s.label}</div>
-        <div class="selection-count">${s.count}</div>
+
+  const gridEl = document.getElementById('sel-cat-grid');
+  const overviewEl = document.getElementById('sel-cat-overview');
+  const detailEl = document.getElementById('sel-cat-detail');
+  if (detailEl) detailEl.style.display = 'none';
+  if (overviewEl) overviewEl.style.display = 'block';
+
+  if (!gridEl) return;
+  gridEl.innerHTML = sections.map(s => {
+    const countLabel = s.limit ? `${s.count} / ${s.limit}` : `${s.count} photo${s.count !== 1 ? 's' : ''}`;
+    const thumb = byType[s.key][0]?.url || '';
+    return `
+    <div onclick="openSelCatDetail('${s.key}')"
+      style="background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.18s;box-shadow:0 1px 4px rgba(0,0,0,0.04);"
+      onmouseover="this.style.borderColor='var(--gold)';this.style.boxShadow='0 4px 12px rgba(201,169,110,0.18)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.04)'">
+      <div style="height:90px;background:var(--cream);position:relative;overflow:hidden;">
+        ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;">${s.icon}</div>`}
+        <div style="position:absolute;top:0.4rem;right:0.5rem;background:${s.color};color:white;font-size:0.65rem;font-weight:600;padding:0.15rem 0.45rem;border-radius:20px;">${s.count}</div>
       </div>
-      ${byType[s.key].length === 0
-        ? `<div class="empty-state"><div class="empty-icon">📭</div><p>No photos here yet</p></div>`
-        : `<div class="photo-grid">${byType[s.key].map((photo, idx) => `
-            <div class="photo-card" id="sel-card-${s.key}-${photo.id}">
-              <div class="photo-img-wrap" onclick="openLightbox(${JSON.stringify(byType[s.key].map(p=>p.url))}, ${idx}, '${s.label}')">
-                <img src="${photo.url}" loading="lazy" />
-                <div class="photo-zoom-hint">🔍 View</div>
-              </div>
-              <div style="padding:0.35rem 0.5rem;">
-                <span class="category-badge">${photo.category}</span>
-              </div>
-              <div style="padding:0 0.5rem 0.5rem;">
-                <button class="btn-danger" style="width:100%;font-size:0.7rem;padding:0.35rem;" onclick="removeFromSelection('${photo.id}','${s.key}')">✕ Remove</button>
-              </div>
-            </div>`).join('')}
-          </div>`
-      }
-    </div>
-  `).join('');
+      <div style="padding:0.55rem 0.7rem;">
+        <div style="font-size:0.8rem;font-weight:500;color:var(--charcoal);">${s.label}</div>
+        <div style="font-size:0.68rem;color:var(--soft-gray);margin-top:0.1rem;">${countLabel}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openSelCatDetail(key) {
+  const f1 = customFolder1Name;
+  const byType = { liked: [], bride: [], groom: [], custom1: [] };
+  Object.entries(selections).forEach(([photoId, types]) => {
+    const photo = allPhotos.find(p => p.id === photoId);
+    if (!photo) return;
+    types.forEach(t => { if (byType[t]) byType[t].push(photo); });
+  });
+  const brideLimit = currentProject.bride_limit || 1000;
+  const groomLimit = currentProject.groom_limit || 1000;
+  const labelMap = { liked: '❤️ Liked Photos', bride: '👰 Bride Album', groom: '🤵 Groom Album', custom1: `📁 ${f1}` };
+  const limitMap  = { liked: null, bride: brideLimit, groom: groomLimit, custom1: null };
+  const photos = byType[key] || [];
+  const label  = labelMap[key];
+  const limit  = limitMap[key];
+
+  const overviewEl = document.getElementById('sel-cat-overview');
+  const detailEl   = document.getElementById('sel-cat-detail');
+  const contentEl  = document.getElementById('sel-cat-detail-content');
+  if (overviewEl) overviewEl.style.display = 'none';
+  if (detailEl)   detailEl.style.display = 'block';
+
+  lbPhotos = photos;
+
+  const countLabel = limit ? `${photos.length} / ${limit}` : `${photos.length} photo${photos.length !== 1 ? 's' : ''}`;
+  contentEl.innerHTML = `
+    <div style="font-size:0.9rem;font-weight:500;color:var(--charcoal);margin-bottom:0.2rem;">${label}</div>
+    <div style="font-size:0.72rem;color:var(--soft-gray);margin-bottom:0.75rem;">${countLabel}</div>
+    ${photos.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">📭</div><p>No photos here yet — go to Browse Photos to make selections</p></div>`
+      : `<div class="photo-grid">${photos.map((photo, idx) => `
+          <div class="photo-card" id="sel-card-${key}-${photo.id}">
+            <div class="photo-img-wrap" onclick="openLightbox(${JSON.stringify(photos.map(p=>p.url))}, ${idx}, '${label}')">
+              <img src="${photo.url}" loading="lazy"/>
+              <div class="photo-zoom-hint">🔍 View</div>
+            </div>
+            <div style="padding:0.35rem 0.5rem;">
+              <span class="category-badge">${photo.category}</span>
+            </div>
+            <div style="padding:0 0.5rem 0.5rem;">
+              <button class="btn-danger" style="width:100%;font-size:0.7rem;padding:0.35rem;" onclick="removeFromSelAndRefresh('${photo.id}','${key}')">✕ Remove</button>
+            </div>
+          </div>`).join('')}
+        </div>`
+    }`;
+}
+
+async function removeFromSelAndRefresh(photoId, type) {
+  await removeFromSelection(photoId, type);
+  openSelCatDetail(type);
+  // Also refresh overview counts
+  renderClientSelections();
+  // Re-open the same detail
+  openSelCatDetail(type);
+}
+
+function closeSelCatDetail() {
+  const overviewEl = document.getElementById('sel-cat-overview');
+  const detailEl   = document.getElementById('sel-cat-detail');
+  if (overviewEl) overviewEl.style.display = 'block';
+  if (detailEl)   detailEl.style.display = 'none';
+  renderClientSelections();
 }
 
 // ══════════════════════════════════════════
@@ -3345,11 +3707,9 @@ function renderClientSelections() {
 async function loadClientOwnPhotos() {
   const el = document.getElementById('client-own-photos');
   if (!el) return;
-  // Init folder name inputs
+  // Init folder name input
   const fn1 = document.getElementById('client-folder-name-1');
-  const fn2 = document.getElementById('client-folder-name-2');
   if (fn1) fn1.value = customFolder1Name !== 'Custom Folder 1' ? customFolder1Name : '';
-  if (fn2) fn2.value = customFolder2Name !== 'Custom Folder 2' ? customFolder2Name : '';
   try {
     const data = await sbFetch(`photos?project_id=eq.${currentProject.id}&category=like.client-%25&select=*&order=created_at.asc`);
     clientOwnPhotos = data;
@@ -3384,11 +3744,8 @@ async function deleteClientOwnPhoto(photoId) {
 
 function saveClientFolderNames() {
   const f1 = document.getElementById('client-folder-name-1').value.trim();
-  const f2 = document.getElementById('client-folder-name-2').value.trim();
-  if (f1) customFolder1Name = f1;
-  if (f2) customFolder2Name = f2;
-  updateCustomFolderLabels();
-  showToast('✅ Folder names updated!');
+  if (f1) { customFolder1Name = f1; updateCustomFolderLabels(); }
+  showToast('✅ Folder name updated!');
 }
 
 async function handleClientUpload(event) {
@@ -3460,13 +3817,11 @@ function updateLightboxFooter(photoId) {
   const hasBride  = sel.includes('bride');
   const hasGroom  = sel.includes('groom');
   const hasC1     = sel.includes('custom1');
-  const hasC2     = sel.includes('custom2');
   footer.innerHTML = `
     <button class="lb-action-btn ${hasLiked ? 'active-liked' : ''}" onclick="toggleSelection('${photoId}', 'liked')">${hasLiked ? '❤️ Liked' : '🤍 Like'}</button>
     <button class="lb-action-btn ${hasBride ? 'active-bride' : ''}" onclick="toggleSelection('${photoId}', 'bride')">${hasBride ? '👰 Bride Album' : '+ Bride Album'}</button>
     <button class="lb-action-btn ${hasGroom ? 'active-groom' : ''}" onclick="toggleSelection('${photoId}', 'groom')">${hasGroom ? '🤵 Groom Album' : '+ Groom Album'}</button>
     <button class="lb-action-btn ${hasC1 ? 'active-custom1' : ''}" onclick="toggleSelection('${photoId}', 'custom1')">${hasC1 ? '📁 ' + customFolder1Name : '+ ' + customFolder1Name}</button>
-    <button class="lb-action-btn ${hasC2 ? 'active-custom2' : ''}" onclick="toggleSelection('${photoId}', 'custom2')">${hasC2 ? '📂 ' + customFolder2Name : '+ ' + customFolder2Name}</button>
   `;
 }
 
@@ -3906,8 +4261,246 @@ function buildEnquiryClientPage() {
 }
 
 // ══════════════════════════════════════════
-//  TOAST
+//  STUDIO WATERMARK IMAGE
 // ══════════════════════════════════════════
+async function handleStudioWatermark(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  showToast('Uploading watermark…');
+  const url = await uploadToCloudinary(file, `studio-watermarks/${currentStudio.code}`);
+  if (url) {
+    try {
+      await sbFetch(`studios?code=eq.${encodeURIComponent(currentStudio.code)}`, {
+        method: 'PATCH', prefer: 'return=minimal', body: JSON.stringify({ watermark_url: url })
+      });
+      studiosDB[currentStudio.code].watermarkUrl = url;
+      currentStudio.watermarkUrl = url;
+      const prev = document.getElementById('studio-watermark-preview');
+      prev.src = url; prev.style.display = 'block';
+      document.getElementById('studio-watermark-placeholder').style.display = 'none';
+      document.getElementById('watermark-status').style.display = 'block';
+      showToast('✅ Watermark image saved!');
+    } catch(e) { showToast('Error saving watermark: ' + e.message); }
+  }
+}
+
+// Load watermark preview when settings form loads
+const _origLoadStudioSettings = loadStudioSettings_form;
+function loadStudioSettings_form() {
+  _origLoadStudioSettings();
+  if (currentStudio.watermarkUrl) {
+    const prev = document.getElementById('studio-watermark-preview');
+    if (prev) {
+      prev.src = currentStudio.watermarkUrl;
+      prev.style.display = 'block';
+      const ph = document.getElementById('studio-watermark-placeholder');
+      if (ph) ph.style.display = 'none';
+      const st = document.getElementById('watermark-status');
+      if (st) st.style.display = 'block';
+    }
+  }
+}
+
+// Override applyWatermarkToUrl to use image watermark if available
+const _origApplyWatermark = applyWatermarkToUrl;
+async function applyWatermarkToUrl(imageUrl) {
+  if (!watermarkEnabled || !imageUrl || !imageUrl.includes('cloudinary.com')) return imageUrl;
+  const wmUrl = currentStudio.watermarkUrl || '';
+  if (wmUrl && wmUrl.includes('cloudinary.com')) {
+    // Extract public_id of watermark from its Cloudinary URL
+    const match = wmUrl.match(/\/upload\/(?:v\d+\/)?(.+)$/);
+    const wmPublicId = match ? match[1].replace(/\.[^.]+$/, '') : '';
+    if (wmPublicId) {
+      const encoded = encodeURIComponent(wmPublicId).replace(/%2F/g, '/');
+      return imageUrl.replace('/upload/', `/upload/l_${encoded},o_70,g_south_east,x_15,y_15,w_120/`);
+    }
+  }
+  // Fallback to text watermark
+  return _origApplyWatermark(imageUrl);
+}
+
+// ══════════════════════════════════════════
+//  COUPLE PHOTO UPLOAD (PROJECT)
+// ══════════════════════════════════════════
+let _pendingCouplePhotoFile = null;
+
+function handleCouplePhotoPreview(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  _pendingCouplePhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('couple-photo-preview');
+    const ph = document.getElementById('couple-photo-placeholder');
+    if (prev) { prev.src = e.target.result; prev.style.display = 'block'; }
+    if (ph) ph.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// Patch createProject to upload couple photo if selected
+const _origCreateProject = createProject;
+async function createProject() {
+  const name   = document.getElementById('project-name').value.trim();
+  const code   = document.getElementById('project-code').value.trim().toUpperCase();
+  const wdate  = document.getElementById('project-date').value;
+  const brideLimit = parseInt(document.getElementById('project-bride-limit').value) || null;
+  const groomLimit = parseInt(document.getElementById('project-groom-limit').value) || null;
+  if (!name || !code) { showToast('Please fill in name and access code'); return; }
+
+  let couplePhotoUrl = '';
+  if (_pendingCouplePhotoFile) {
+    showToast('Uploading couple photo…');
+    couplePhotoUrl = await uploadToCloudinary(_pendingCouplePhotoFile, `couple-photos/${currentStudio.code}`) || '';
+  }
+
+  try {
+    await sbFetch('wedding_projects', {
+      method: 'POST',
+      body: JSON.stringify({
+        name, client_code: code,
+        studio_code: currentStudio.code,
+        wedding_date: wdate || null,
+        couple_photo_url: couplePhotoUrl || null,
+        bride_limit: brideLimit,
+        groom_limit: groomLimit
+      })
+    });
+    document.getElementById('project-name').value = '';
+    document.getElementById('project-code').value = '';
+    document.getElementById('project-date').value = '';
+    document.getElementById('project-bride-limit').value = '';
+    document.getElementById('project-groom-limit').value = '';
+    // Reset couple photo
+    _pendingCouplePhotoFile = null;
+    document.getElementById('couple-photo-input').value = '';
+    const prev = document.getElementById('couple-photo-preview');
+    const ph = document.getElementById('couple-photo-placeholder');
+    if (prev) { prev.src = ''; prev.style.display = 'none'; }
+    if (ph) ph.style.display = 'flex';
+
+    showToast('✅ Project created!');
+    const baseUrl = window.location.origin + window.location.pathname;
+    const clientLink = `${baseUrl}?client=${code}`;
+    document.getElementById('project-link-text').textContent = clientLink;
+    document.getElementById('project-code-display').textContent = code;
+    document.getElementById('project-link-result').style.display = 'block';
+    window._lastProjectLink = clientLink;
+    loadProjects();
+  } catch(e) {
+    showToast('Error: Code may already exist');
+  }
+}
+
+// ══════════════════════════════════════════
+//  STUDIO UPLOAD TAB — CATEGORY OVERVIEW
+// ══════════════════════════════════════════
+const ALL_CATEGORIES = [
+  'Pottu Function','Wedding Photos','Reception Photos','Bride-seeing Ceremony',
+  'Haldi','Bride to Be','Post Wedding','Pre Wedding','Post-Wedding Homecoming'
+];
+
+async function loadStudioCategoryOverview() {
+  const projectId = document.getElementById('upload-project').value;
+  const overviewEl = document.getElementById('studio-category-overview');
+  const gridEl = document.getElementById('studio-cat-grid');
+  if (!overviewEl || !gridEl) return;
+
+  if (!projectId) { overviewEl.style.display = 'none'; return; }
+  overviewEl.style.display = 'block';
+
+  // Get custom folder names
+  const f1 = customFolder1Name || 'Custom Folder 1';
+  const f2 = customFolder2Name || 'Custom Folder 2';
+  const cats = [...ALL_CATEGORIES, f1, f2];
+
+  gridEl.innerHTML = '<div style="grid-column:1/-1;font-size:0.78rem;color:var(--soft-gray);padding:0.5rem 0;">Loading…</div>';
+
+  try {
+    const data = await sbFetch(`photos?select=id,category&project_id=eq.${projectId}&studio_code=eq.${encodeURIComponent(currentStudio.code)}`);
+    const counts = {};
+    data.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
+
+    gridEl.innerHTML = cats.map(cat => {
+      const count = counts[cat] || 0;
+      return `
+      <div onclick="openStudioCatPhotos('${projectId}','${cat.replace(/'/g,"\\'")}','${cat}')"
+        style="background:white;border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;cursor:pointer;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center;"
+        onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div>
+          <div style="font-size:0.82rem;font-weight:500;color:var(--charcoal);">${cat}</div>
+          <div style="font-size:0.68rem;color:var(--soft-gray);margin-top:0.15rem;">${count} photo${count !== 1 ? 's' : ''}</div>
+        </div>
+        <div style="font-size:1.1rem;opacity:${count > 0 ? '1' : '0.3'};">📁</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    gridEl.innerHTML = '<div style="grid-column:1/-1;font-size:0.78rem;color:red;">Error loading categories</div>';
+  }
+}
+
+async function openStudioCatPhotos(projectId, cat, catLabel) {
+  const gridEl = document.getElementById('studio-cat-grid');
+  const viewEl = document.getElementById('studio-cat-photos-view');
+  const backBtn = document.getElementById('studio-cat-back-btn');
+  if (!viewEl) return;
+
+  if (gridEl) gridEl.style.display = 'none';
+  if (backBtn) backBtn.style.display = 'block';
+  viewEl.style.display = 'block';
+  viewEl.innerHTML = `<div style="font-size:0.9rem;font-weight:500;color:var(--charcoal);margin-bottom:0.75rem;">📁 ${catLabel}</div><div class="loading"><div class="spinner"></div>Loading…</div>`;
+
+  try {
+    const data = await sbFetch(`photos?select=*&project_id=eq.${projectId}&category=eq.${encodeURIComponent(cat)}&studio_code=eq.${encodeURIComponent(currentStudio.code)}&order=created_at.desc`);
+    if (!data.length) {
+      viewEl.innerHTML = `<div style="font-size:0.9rem;font-weight:500;color:var(--charcoal);margin-bottom:0.75rem;">📁 ${catLabel}</div><div class="empty-state"><div class="empty-icon">📷</div><p>No photos in this category yet</p></div>`;
+      return;
+    }
+    const urls = data.map(p => p.url);
+    viewEl.innerHTML = `
+      <div style="font-size:0.9rem;font-weight:500;color:var(--charcoal);margin-bottom:0.75rem;">📁 ${catLabel} <span style="font-size:0.72rem;color:var(--soft-gray);font-weight:400;">(${data.length} photos)</span></div>
+      <div class="photo-grid">
+        ${data.map((p, i) => `
+          <div class="photo-card" id="studio-upcat-card-${p.id}">
+            <div class="photo-img-wrap" onclick="openLightbox(${JSON.stringify(urls)}, ${i}, '${catLabel}')">
+              <img src="${p.url}" loading="lazy" />
+              <div class="photo-zoom-hint">🔍 View</div>
+            </div>
+            <div style="padding:0.35rem 0.5rem;">
+              ${p.watermarked ? '<span style="font-size:0.6rem;color:var(--gold);">🔒 WM</span>' : ''}
+            </div>
+            <div style="padding:0 0.5rem 0.5rem;">
+              <button class="btn-danger" style="width:100%;font-size:0.7rem;padding:0.35rem;" onclick="deleteStudioCatPhoto('${p.id}','${projectId}','${cat.replace(/'/g,"\\'")}','${catLabel}')">🗑 Remove</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    viewEl.innerHTML = `<div style="font-size:0.9rem;font-weight:500;color:var(--charcoal);margin-bottom:0.75rem;">📁 ${catLabel}</div><p style="color:red;font-size:0.8rem;">Error loading photos.</p>`;
+  }
+}
+
+async function deleteStudioCatPhoto(photoId, projectId, cat, catLabel) {
+  if (!confirm('Remove this photo? This cannot be undone.')) return;
+  try {
+    await sbFetch(`photos?id=eq.${photoId}`, { method: 'DELETE', prefer: 'return=minimal' });
+    showToast('Photo removed');
+    const card = document.getElementById(`studio-upcat-card-${photoId}`);
+    if (card) card.remove();
+    // Refresh count grid in background
+    loadStudioCategoryOverview();
+  } catch(e) { showToast('Error removing photo'); }
+}
+
+function closeStudioCatPhotoView() {
+  const gridEl = document.getElementById('studio-cat-grid');
+  const viewEl = document.getElementById('studio-cat-photos-view');
+  const backBtn = document.getElementById('studio-cat-back-btn');
+  if (gridEl) gridEl.style.display = 'grid';
+  if (viewEl) { viewEl.style.display = 'none'; viewEl.innerHTML = ''; }
+  if (backBtn) backBtn.style.display = 'none';
+}
+
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
