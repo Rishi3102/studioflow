@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Studio Platform</title>
+<title>Rishiani Studio Flow</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -1109,49 +1109,15 @@
 <body>
 
 <!-- ══════════════════════════════════════════
-     SCREEN 0: LOGIN HUB (Choose your role)
+     SCREEN 0: PLATFORM ADMIN LOGIN (main page)
      ══════════════════════════════════════════ -->
-<div id="screen-login" class="active">
-  <div class="hub-logo-wrap">
-    <div class="hub-logo-placeholder" id="hub-logo-display">✦</div>
-    <div class="hub-brand" id="hub-brand-name">StudioFlow</div>
-    <div class="hub-tagline">Wedding Photo Platform</div>
-  </div>
-
-  <div class="role-cards">
-    <div class="role-card" onclick="gotoLogin('platform')">
-      <div class="role-icon">👑</div>
-      <div>
-        <div class="role-label">Platform Admin</div>
-        <div class="role-desc">Manage studios & subscriptions</div>
-      </div>
-      <div class="role-arrow">›</div>
-    </div>
-    <div class="role-card" onclick="gotoLogin('studio')">
-      <div class="role-icon">📸</div>
-      <div>
-        <div class="role-label">Studio Owner</div>
-        <div class="role-desc">Upload photos & manage clients</div>
-      </div>
-      <div class="role-arrow">›</div>
-    </div>
-    <div class="role-card" onclick="gotoLogin('client')">
-      <div class="role-icon">💍</div>
-      <div>
-        <div class="role-label">Client</div>
-        <div class="role-desc">View & select your wedding photos</div>
-      </div>
-      <div class="role-arrow">›</div>
-    </div>
-  </div>
-</div>
+<div id="screen-login"></div>
 
 <!-- ══════════════════════════════════════════
      SCREEN 1a: PLATFORM ADMIN LOGIN
      ══════════════════════════════════════════ -->
-<div id="screen-platform-login">
-  <button class="login-back" onclick="gotoHub()">← Back</button>
-  <div class="login-logo" id="plat-login-logo">✦ StudioFlow</div>
+<div id="screen-platform-login" class="active">
+  <div class="login-logo" id="plat-login-logo">✦ Rishiani Studio Flow</div>
   <div class="login-sub">Platform Administration</div>
   <div class="login-card">
     <div class="login-card-title">👑 Admin Sign In</div>
@@ -1170,11 +1136,10 @@
 </div>
 
 <!-- ══════════════════════════════════════════
-     SCREEN 1b: STUDIO OWNER LOGIN
+     SCREEN 1b: STUDIO OWNER LOGIN (accessed via ?studio=CODE URL)
      ══════════════════════════════════════════ -->
 <div id="screen-studio-login">
-  <button class="login-back" onclick="gotoHub()">← Back</button>
-  <div class="login-logo" id="studio-login-logo-text">✦ Studio</div>
+  <div class="login-logo" id="studio-login-logo-text">✦ Rishiani Studio Flow</div>
   <div class="login-sub" id="studio-login-sub">Studio Owner Portal</div>
   <div class="login-card">
     <div class="login-card-title">📸 Studio Sign In</div>
@@ -1192,11 +1157,10 @@
 </div>
 
 <!-- ══════════════════════════════════════════
-     SCREEN 1c: CLIENT LOGIN
+     SCREEN 1c: CLIENT LOGIN (accessed via project link ?client=CODE)
      ══════════════════════════════════════════ -->
 <div id="screen-client-login">
-  <button class="login-back" onclick="gotoHub()">← Back</button>
-  <div class="login-logo" id="client-login-logo-text">✦ Studio</div>
+  <div class="login-logo" id="client-login-logo-text">✦ Rishiani Studio Flow</div>
   <div class="login-sub">View Your Wedding Photos</div>
   <div class="login-card">
     <div class="login-card-title">💍 Client Access</div>
@@ -1235,6 +1199,8 @@
     <div class="main-tabs">
       <div class="main-tab platform-active" onclick="showTab('platform','dashboard')">Dashboard</div>
       <div class="main-tab" onclick="showTab('platform','studios')">Studios</div>
+      <div class="main-tab" onclick="showTab('platform','enquiry')">Enquiry</div>
+      <div class="main-tab" onclick="showTab('platform','diginvite')">Digital Invite</div>
       <div class="main-tab" onclick="showTab('platform','settings')">My Settings</div>
     </div>
 
@@ -1246,13 +1212,13 @@
           <div class="stat-num" id="stat-studios">0</div><div class="stat-label">Studios</div>
           <div style="font-size:0.6rem;color:var(--platform-light);margin-top:0.3rem;">Tap to view ›</div>
         </div>
-        <div class="stat-card" onclick="openStatDetail('projects')" style="cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(74,63,107,0.15)'" onmouseout="this.style.boxShadow=''">
-          <div class="stat-num" id="stat-projects">0</div><div class="stat-label">Projects</div>
-          <div style="font-size:0.6rem;color:var(--platform-light);margin-top:0.3rem;">Tap to view ›</div>
+        <div class="stat-card" onclick="showTab('platform','enquiry')" style="cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(74,63,107,0.15)'" onmouseout="this.style.boxShadow=''">
+          <div class="stat-num" id="stat-enquiry">📋</div><div class="stat-label">Enquiry</div>
+          <div style="font-size:0.6rem;color:var(--platform-light);margin-top:0.3rem;">Tap to manage ›</div>
         </div>
-        <div class="stat-card" onclick="openStatDetail('photos')" style="cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(74,63,107,0.15)'" onmouseout="this.style.boxShadow=''">
-          <div class="stat-num" id="stat-photos">0</div><div class="stat-label">Photos</div>
-          <div style="font-size:0.6rem;color:var(--platform-light);margin-top:0.3rem;">Tap to view ›</div>
+        <div class="stat-card" onclick="showTab('platform','diginvite')" style="cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(74,63,107,0.15)'" onmouseout="this.style.boxShadow=''">
+          <div class="stat-num" id="stat-diginvite">💌</div><div class="stat-label">Digital Invitation</div>
+          <div style="font-size:0.6rem;color:var(--platform-light);margin-top:0.3rem;">Tap to manage ›</div>
         </div>
         <div class="stat-card" onclick="openStatDetail('revenue')" style="cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(74,63,107,0.15)'" onmouseout="this.style.boxShadow=''">
           <div class="stat-num" id="stat-revenue">₹0</div><div class="stat-label">Est. Revenue</div>
@@ -1323,9 +1289,28 @@
           </div>
           <input type="hidden" id="selected-storage" value="25GB" />
         </div>
+        <div class="form-row">
+          <label>Enable Enquiry Feature for this Studio?</label>
+          <div style="display:flex;gap:0.75rem;margin-top:0.35rem;">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;cursor:pointer;text-transform:none;letter-spacing:0;">
+              <input type="radio" name="enable-enquiry" id="enquiry-yes" value="yes" style="accent-color:var(--platform);width:auto;" />
+              Yes — Studio can use Enquiry packages
+            </label>
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;cursor:pointer;text-transform:none;letter-spacing:0;">
+              <input type="radio" name="enable-enquiry" id="enquiry-no" value="no" checked style="accent-color:var(--platform);width:auto;" />
+              No
+            </label>
+          </div>
+        </div>
         <button class="btn-platform" onclick="createStudio()">Add Studio</button>
+        <div id="studio-link-result" style="display:none;margin-top:1rem;background:#f0f7ff;border:1px solid #c3dafe;border-radius:8px;padding:0.85rem 1rem;font-size:0.82rem;">
+          <div style="font-weight:500;margin-bottom:0.35rem;">✅ Studio created! Share this login link:</div>
+          <div id="studio-link-text" style="word-break:break-all;color:var(--platform);font-family:monospace;font-size:0.78rem;margin-bottom:0.5rem;"></div>
+          <button class="btn-small platform" onclick="copyStudioLink()">📋 Copy Link</button>
+        </div>
       </div>
 
+      <!-- All Studios accordion -->
       <div class="owner-card">
         <h3>All Studios</h3>
         <div id="studios-list"><div class="loading"><div class="spinner"></div>Loading...</div></div>
@@ -1356,6 +1341,32 @@
           <button class="btn-platform" style="flex:1;" onclick="saveEditStudio()">Save Changes</button>
           <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('edit-studio-modal').style.display='none'">Cancel</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Enquiry Tab -->
+    <div id="ptab-enquiry" class="tab-content">
+      <div class="section-title">Enquiry Packages</div>
+      <p style="font-size:0.82rem;color:var(--soft-gray);margin-bottom:1.2rem;">Upload photos for each package. Once done, share the generated link with clients so they can view and choose their package.</p>
+
+      <!-- Package accordion list -->
+      <div id="enquiry-packages-list"></div>
+
+      <!-- Share link panel -->
+      <div class="owner-card" style="margin-top:1rem;">
+        <h3>📤 Share Enquiry Page</h3>
+        <p style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:0.75rem;">Share this link with your client. They can view all packages and tell you which one they prefer.</p>
+        <div id="enquiry-share-link" style="word-break:break-all;color:var(--platform);font-family:monospace;font-size:0.78rem;background:#f0f7ff;border:1px solid #c3dafe;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.75rem;"></div>
+        <button class="btn-small platform" onclick="copyEnquiryLink()">📋 Copy Link</button>
+      </div>
+    </div>
+
+    <!-- Digital Invite Tab -->
+    <div id="ptab-diginvite" class="tab-content">
+      <div class="section-title">Digital Invitation</div>
+      <div class="empty-state">
+        <div class="empty-icon">💌</div>
+        <p>Digital Invitation management coming soon.</p>
       </div>
     </div>
 
@@ -1436,10 +1447,39 @@
           <input type="text" id="project-name" autocomplete="off" placeholder="e.g. Ravi & Priya Wedding" />
         </div>
         <div class="form-row">
+          <label>Wedding Date</label>
+          <input type="date" id="project-date" autocomplete="off" />
+        </div>
+        <div class="form-row">
           <label>Client Access Code (clients use this to log in)</label>
           <input type="text" id="project-code" autocomplete="off" placeholder="e.g. RAVI2024" style="text-transform:uppercase;" />
         </div>
         <button class="btn-secondary" onclick="createProject()">Create Project</button>
+        <!-- Project link display after creation -->
+        <div id="project-link-result" style="display:none;margin-top:1rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:0.85rem 1rem;font-size:0.82rem;">
+          <div style="font-weight:500;margin-bottom:0.35rem;">✅ Project created! Share this link with the client:</div>
+          <div id="project-link-text" style="word-break:break-all;color:var(--success);font-family:monospace;font-size:0.78rem;margin-bottom:0.35rem;"></div>
+          <div style="color:var(--soft-gray);font-size:0.72rem;margin-bottom:0.5rem;">Access Code: <strong id="project-code-display"></strong> — share this code with the client separately.</div>
+          <button class="btn-small" onclick="copyProjectLink()" style="background:var(--success);">📋 Copy Link</button>
+        </div>
+      </div>
+
+      <!-- Inline project edit panel -->
+      <div id="project-edit-inline" style="display:none;" class="owner-card">
+        <h3>✏️ Edit Project</h3>
+        <input type="hidden" id="edit-project-id" />
+        <div class="form-row">
+          <label>Project Name</label>
+          <input type="text" id="edit-project-name" autocomplete="off" />
+        </div>
+        <div class="form-row">
+          <label>Wedding Date</label>
+          <input type="date" id="edit-project-date" />
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <button class="btn-secondary" style="flex:1;" onclick="saveEditProject()">Save</button>
+          <button class="btn-secondary" style="flex:1;background:var(--soft-gray);" onclick="document.getElementById('project-edit-inline').style.display='none'">Cancel</button>
+        </div>
       </div>
 
       <div class="owner-card">
@@ -1475,6 +1515,25 @@
             <option value="Custom Folder 1" id="upload-cat-custom1">Custom Folder 1</option>
             <option value="Custom Folder 2" id="upload-cat-custom2">Custom Folder 2</option>
           </select>
+        </div>
+        <!-- Watermark Toggle -->
+        <div class="form-row" style="margin-bottom:0.9rem;">
+          <label style="margin-bottom:0.5rem;display:block;">Watermark</label>
+          <div style="display:flex;gap:0.6rem;">
+            <button id="wm-enable-btn" onclick="setWatermark(true)" style="
+              flex:1;padding:0.65rem;border-radius:8px;border:2px solid var(--gold);
+              background:var(--gold);color:white;font-family:'DM Sans',sans-serif;
+              font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
+              🔒 Watermark — Enable
+            </button>
+            <button id="wm-disable-btn" onclick="setWatermark(false)" style="
+              flex:1;padding:0.65rem;border-radius:8px;border:2px solid var(--border);
+              background:var(--cream);color:var(--soft-gray);font-family:'DM Sans',sans-serif;
+              font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
+              🔓 Watermark — Disable
+            </button>
+          </div>
+          <div id="wm-status" style="font-size:0.72rem;color:var(--soft-gray);margin-top:0.4rem;text-align:center;">Watermark: Enabled</div>
         </div>
         <div class="upload-area" onclick="document.getElementById('file-input').click()">
           <div class="upload-icon">📷</div>
@@ -1879,8 +1938,9 @@ const CLOUDINARY_PRESET = 'wedding_studio';
 // ── Platform defaults (overridden by localStorage settings) ──
 let PLATFORM_ADMIN_USER = 'superadmin';
 let PLATFORM_ADMIN_PASS = 'platform2024';
-let platformName        = 'StudioFlow';
+let platformName        = 'Rishiani Studio Flow';
 let platformLogoUrl     = '';
+let watermarkEnabled    = true; // global watermark state
 
 // ── Studio map: studioCode → { name, password, storagePlan, logoUrl, displayName, customFolder1, customFolder2 }
 // In production this would be in a DB. Here stored in localStorage.
@@ -1907,6 +1967,9 @@ function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { 
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 
 async function loadPlatformSettings() {
+  // Check if this is a client-facing enquiry view link
+  if (checkEnquiryRoute()) return;
+
   const s = lsGet('platform_settings');
   if (s) {
     PLATFORM_ADMIN_USER = s.adminUser || PLATFORM_ADMIN_USER;
@@ -1916,6 +1979,23 @@ async function loadPlatformSettings() {
   }
   applyPlatformBranding();
   await refreshStudiosDB();
+  // Check URL params and route accordingly
+  const params = new URLSearchParams(window.location.search);
+  const studioParam = params.get('studio');
+  const clientParam = params.get('client');
+  if (studioParam) {
+    // Show studio login screen for this studio
+    hideAllScreens();
+    const studioCode = studioParam.toUpperCase();
+    document.getElementById('studio-username').value = studioCode;
+    document.getElementById('screen-studio-login').classList.add('active');
+    document.getElementById('studio-login-sub').textContent = 'Studio Owner Portal';
+  } else if (clientParam) {
+    // Auto-fill client code and show client login
+    hideAllScreens();
+    document.getElementById('client-code').value = clientParam.toUpperCase();
+    document.getElementById('screen-client-login').classList.add('active');
+  }
 }
 
 async function refreshStudiosDB() {
@@ -1942,11 +2022,11 @@ async function refreshStudiosDB() {
 }
 
 function applyPlatformBranding() {
-  document.getElementById('hub-brand-name').textContent = platformName;
-  document.getElementById('plat-login-logo').textContent = '✦ ' + platformName;
+  const platLogo = document.getElementById('plat-login-logo');
+  if (platLogo) platLogo.textContent = '✦ ' + platformName;
   if (platformLogoUrl) {
     const hub = document.getElementById('hub-logo-display');
-    hub.innerHTML = `<img class="hub-logo-img" src="${platformLogoUrl}" />`;
+    if (hub) hub.innerHTML = `<img class="hub-logo-img" src="${platformLogoUrl}" />`;
   }
 }
 
@@ -1978,7 +2058,7 @@ async function sbFetch(path, options = {}) {
 // ══════════════════════════════════════════
 function gotoHub() {
   hideAllScreens();
-  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('screen-platform-login').classList.add('active');
 }
 
 function gotoLogin(role) {
@@ -1988,10 +2068,10 @@ function gotoLogin(role) {
 
 function hideAllScreens() {
   ['screen-login','screen-platform-login','screen-studio-login','screen-client-login','screen-app']
-    .forEach(id => document.getElementById(id).classList.remove('active'));
-  // studio/client/platform login screens use flex not block
+    .forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active'); });
   ['screen-platform-login','screen-studio-login','screen-client-login'].forEach(id => {
-    document.getElementById(id).style.display = '';
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
   });
 }
 
@@ -2176,6 +2256,7 @@ function showTab(panel, name) {
   if (panel === 'client' && name === 'selections') renderClientSelections();
   if (panel === 'client' && name === 'upload') loadClientOwnPhotos();
   if (panel === 'platform' && name === 'studios') { loadStudiosList(); loadPlatformStudiosStats(); }
+  if (panel === 'platform' && name === 'enquiry') renderEnquiryPackages();
 }
 
 // ══════════════════════════════════════════
@@ -2190,14 +2271,6 @@ async function loadPlatformDashboard() {
   let revenue = 0;
   studios.forEach(s => { revenue += planPrices[s.storagePlan] || 0; });
   document.getElementById('stat-revenue').textContent = '₹' + revenue;
-
-  // Try to count projects & photos from Supabase
-  try {
-    const projs = await sbFetch('wedding_projects?select=id');
-    document.getElementById('stat-projects').textContent = projs.length;
-    const photos = await sbFetch('photos?select=id');
-    document.getElementById('stat-photos').textContent = photos.length;
-  } catch {}
 
   // Recent studios list
   const el = document.getElementById('recent-studios-list');
@@ -2340,23 +2413,54 @@ async function adminDeletePhoto(photoId) {
   } catch(e) { showToast('Error removing photo'); }
 }
 
-function loadStudiosList() {
+async function loadStudiosList() {
   const el = document.getElementById('studios-list');
   const studios = Object.entries(studiosDB);
   if (!studios.length) { el.innerHTML = '<p style="color:var(--soft-gray);font-size:0.82rem;">No studios added yet.</p>'; return; }
-  el.innerHTML = studios.map(([code, s]) => `
-    <div class="studio-item">
-      <div class="studio-avatar-placeholder">📸</div>
-      <div class="studio-info">
-        <div class="studio-name">${s.displayName || s.name}</div>
-        <div class="studio-details">Code: ${code} · Storage: ${s.storagePlan}</div>
+  // Fetch projects for grouping (no photo details)
+  let allProjects = [];
+  try { allProjects = await sbFetch('wedding_projects?select=id,name,client_code,studio_code,created_at&order=created_at.desc'); } catch {}
+  const baseUrl = window.location.origin + window.location.pathname;
+  el.innerHTML = studios.map(([code, s]) => {
+    const studioProjects = allProjects.filter(p => p.studio_code === code);
+    const studioLink = `${baseUrl}?studio=${code}`;
+    const projectRows = studioProjects.length
+      ? studioProjects.map(p => {
+          const date = p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '';
+          return `<div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);font-size:0.82rem;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-weight:500;">${p.name}</div>
+              <div style="font-size:0.7rem;color:var(--soft-gray);">Code: ${p.client_code} · Created: ${date}</div>
+            </div>
+          </div>`;
+        }).join('')
+      : '<div style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--soft-gray);">No projects yet</div>';
+    return `
+    <div class="studio-item" style="flex-direction:column;align-items:stretch;padding:0;">
+      <div style="display:flex;align-items:center;gap:1rem;padding:1.1rem 1.2rem;">
+        <div class="studio-avatar-placeholder">📸</div>
+        <div class="studio-info">
+          <div class="studio-name">${s.displayName || s.name}</div>
+          <div class="studio-details">Code: ${code} · Storage: ${s.storagePlan}</div>
+          <div style="font-size:0.68rem;color:var(--platform-light);margin-top:0.2rem;word-break:break-all;">${studioLink}</div>
+        </div>
+        <div class="studio-actions" style="flex-direction:column;gap:0.35rem;">
+          <button class="btn-small platform" onclick="openEditStudio('${code}')">Edit</button>
+          <button class="btn-danger" onclick="deleteStudio('${code}')">Delete</button>
+          <button class="btn-small" onclick="toggleStudioProjects('projects-${code}')" style="background:var(--soft-gray);">📋</button>
+        </div>
       </div>
-      <div class="studio-actions">
-        <button class="btn-small platform" onclick="openEditStudio('${code}')">Edit</button>
-        <button class="btn-danger" onclick="deleteStudio('${code}')">Remove</button>
+      <div id="projects-${code}" style="display:none;border-top:1px solid var(--border);">
+        <div style="padding:0.4rem 1.2rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--platform);background:rgba(74,63,107,0.05);">Projects (${studioProjects.length})</div>
+        ${projectRows}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+}
+
+function toggleStudioProjects(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 function openEditStudio(code) {
@@ -2432,6 +2536,7 @@ async function createStudio() {
   const code = document.getElementById('new-studio-code').value.trim().toUpperCase();
   const pass = document.getElementById('new-studio-pass').value;
   const plan = document.getElementById('selected-storage').value;
+  const enquiryEnabled = document.querySelector('input[name="enable-enquiry"]:checked')?.value === 'yes';
   if (!name || !code || !pass) { showToast('Please fill in all fields'); return; }
   if (studiosDB[code]) { showToast('That studio code already exists'); return; }
   try {
@@ -2441,19 +2546,39 @@ async function createStudio() {
       body: JSON.stringify({
         code, display_name: name, password: pass, storage_plan: plan,
         logo_url: '', custom_folder1: 'Custom Folder 1', custom_folder2: 'Custom Folder 2',
-        whatsapp: PLATFORM_WHATSAPP, email: PLATFORM_EMAIL
+        whatsapp: PLATFORM_WHATSAPP, email: PLATFORM_EMAIL,
+        enquiry_enabled: enquiryEnabled
       })
     });
     await refreshStudiosDB();
-    showToast('✅ Studio added!');
+    showToast('✅ Studio added!' + (enquiryEnabled ? ' (Enquiry: ON)' : ''));
+    // Generate and show studio login link
+    const baseUrl = window.location.origin + window.location.pathname;
+    const studioLink = `${baseUrl}?studio=${code}`;
+    document.getElementById('studio-link-text').textContent = studioLink;
+    document.getElementById('studio-link-result').style.display = 'block';
+    window._lastStudioLink = studioLink;
     document.getElementById('new-studio-name').value = '';
     document.getElementById('new-studio-code').value = '';
     document.getElementById('new-studio-pass').value = '';
+    document.getElementById('enquiry-no').checked = true;
     loadStudiosList();
     loadPlatformDashboard();
   } catch(e) {
     showToast('Error saving studio: ' + e.message);
   }
+}
+
+function copyStudioLink() {
+  const link = window._lastStudioLink || '';
+  if (!link) return;
+  navigator.clipboard.writeText(link).then(() => showToast('✅ Studio link copied!')).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = link; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Link copied!');
+  });
 }
 
 async function deleteStudio(code) {
@@ -2604,7 +2729,8 @@ async function handleStudioLogo(event) {
 // ══════════════════════════════════════════
 async function loadProjects() {
   try {
-    projects = await sbFetch('wedding_projects?select=*&order=created_at.desc');
+    // Filter projects by current studio's code so each studio sees only their own
+    projects = await sbFetch(`wedding_projects?select=*&studio_code=eq.${encodeURIComponent(currentStudio.code)}&order=created_at.desc`);
     renderProjects();
   } catch(e) {
     document.getElementById('project-list').innerHTML = '<p style="color:red;font-size:0.8rem;">Error loading projects.</p>';
@@ -2617,33 +2743,116 @@ function renderProjects() {
     el.innerHTML = '<p style="color:var(--soft-gray);font-size:0.82rem;">No projects yet. Create one above!</p>';
     return;
   }
-  el.innerHTML = projects.map(p => `
-    <div class="project-item">
-      <div>
-        <div class="project-name">${p.name}</div>
-        <div class="project-meta">Client Code: <strong>${p.client_code}</strong></div>
+  const baseUrl = window.location.origin + window.location.pathname;
+  el.innerHTML = projects.map(p => {
+    const date = p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '';
+    const weddingDate = p.wedding_date ? new Date(p.wedding_date).toLocaleDateString('en-IN') : '';
+    const clientLink = `${baseUrl}?client=${p.client_code}`;
+    return `
+    <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;margin-bottom:0.65rem;overflow:hidden;">
+      <div style="padding:0.9rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <div style="flex:1;min-width:0;">
+          <div class="project-name">${p.name}</div>
+          <div class="project-meta">Code: <strong>${p.client_code}</strong>${weddingDate ? ' · Wedding: ' + weddingDate : ''} · Added: ${date}</div>
+        </div>
+        <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+          <button class="btn-small" onclick="toggleProjectDetail('pd-${p.id}')">▾ Details</button>
+          <button class="btn-danger" onclick="deleteProject('${p.id}')">✕</button>
+        </div>
       </div>
-      <div class="project-actions">
-        <button class="btn-small" onclick="ownerViewProject('${p.id}')">View Picks</button>
-        <button class="btn-danger" onclick="deleteProject('${p.id}')">✕</button>
+      <div id="pd-${p.id}" style="display:none;border-top:1px solid var(--border);padding:0.85rem 1rem;background:white;">
+        <div style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:0.6rem;">📎 Client link (share this):</div>
+        <div style="font-family:monospace;font-size:0.72rem;word-break:break-all;color:var(--success);margin-bottom:0.5rem;">${clientLink}</div>
+        <div style="font-size:0.78rem;color:var(--soft-gray);margin-bottom:0.8rem;">🔑 Access Code: <strong>${p.client_code}</strong> — give this to the client separately</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn-small" onclick="copyProjectLinkById('${clientLink}')" style="background:var(--success);">📋 Copy Link</button>
+          <button class="btn-small" onclick="ownerViewProject('${p.id}')">👁 View Picks</button>
+          <button class="btn-small" style="background:var(--platform);" onclick="openEditProjectInline('${p.id}','${p.name}','${p.wedding_date||''}')">✏️ Edit</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+}
+
+function toggleProjectDetail(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function copyProjectLinkById(link) {
+  navigator.clipboard.writeText(link).then(() => showToast('✅ Client link copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = link; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Link copied!');
+  });
+}
+
+function openEditProjectInline(id, name, wdate) {
+  document.getElementById('edit-project-id').value = id;
+  document.getElementById('edit-project-name').value = name;
+  document.getElementById('edit-project-date').value = wdate || '';
+  const panel = document.getElementById('project-edit-inline');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior:'smooth' });
+}
+
+async function saveEditProject() {
+  const id   = document.getElementById('edit-project-id').value;
+  const name = document.getElementById('edit-project-name').value.trim();
+  const wdate = document.getElementById('edit-project-date').value;
+  if (!name) { showToast('Project name cannot be empty'); return; }
+  try {
+    await sbFetch(`wedding_projects?id=eq.${id}`, {
+      method: 'PATCH', prefer: 'return=minimal',
+      body: JSON.stringify({ name, wedding_date: wdate || null })
+    });
+    showToast('✅ Project updated!');
+    document.getElementById('project-edit-inline').style.display = 'none';
+    loadProjects();
+  } catch(e) { showToast('Error updating project'); }
 }
 
 async function createProject() {
-  const name = document.getElementById('project-name').value.trim();
-  const code = document.getElementById('project-code').value.trim().toUpperCase();
-  if (!name || !code) { showToast('Please fill in both fields'); return; }
+  const name   = document.getElementById('project-name').value.trim();
+  const code   = document.getElementById('project-code').value.trim().toUpperCase();
+  const wdate  = document.getElementById('project-date').value;
+  if (!name || !code) { showToast('Please fill in name and access code'); return; }
   try {
-    await sbFetch('wedding_projects', { method: 'POST', body: JSON.stringify({ name, client_code: code }) });
+    await sbFetch('wedding_projects', {
+      method: 'POST',
+      body: JSON.stringify({
+        name, client_code: code,
+        studio_code: currentStudio.code,
+        wedding_date: wdate || null
+      })
+    });
     document.getElementById('project-name').value = '';
     document.getElementById('project-code').value = '';
+    document.getElementById('project-date').value = '';
     showToast('✅ Project created!');
+    // Show client link
+    const baseUrl = window.location.origin + window.location.pathname;
+    const clientLink = `${baseUrl}?client=${code}`;
+    document.getElementById('project-link-text').textContent = clientLink;
+    document.getElementById('project-code-display').textContent = code;
+    document.getElementById('project-link-result').style.display = 'block';
+    window._lastProjectLink = clientLink;
     loadProjects();
   } catch(e) {
     showToast('Error: Code may already exist');
   }
+}
+
+function copyProjectLink() {
+  const link = window._lastProjectLink || '';
+  if (!link) return;
+  navigator.clipboard.writeText(link).then(() => showToast('✅ Client link copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = link; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Link copied!');
+  });
 }
 
 async function deleteProject(id) {
@@ -2714,7 +2923,8 @@ async function loadStudioPhotos() {
   const catEl = document.getElementById('studio-photos-category');
   const category = catEl ? catEl.value : '';
   try {
-    let query = 'photos?select=*&order=created_at.desc';
+    // Always filter by studio_code so owners only see their own photos
+    let query = `photos?select=*&order=created_at.desc&studio_code=eq.${encodeURIComponent(currentStudio.code)}`;
     if (projectId) query += `&project_id=eq.${projectId}`;
     if (category) query += `&category=eq.${encodeURIComponent(category)}`;
     const data = await sbFetch(query);
@@ -2733,6 +2943,7 @@ async function loadStudioPhotos() {
           <div style="padding:0.4rem 0.5rem;">
             <span class="category-badge">${p.category}</span>
             ${proj ? `<span style="font-size:0.65rem;color:var(--soft-gray);margin-left:0.3rem;">${proj.name}</span>` : ''}
+            ${p.watermarked ? `<span style="font-size:0.6rem;color:var(--gold);margin-left:0.3rem;">🔒 WM</span>` : ''}
           </div>
           <div style="padding:0 0.5rem 0.5rem;">
             <button class="btn-danger" style="width:100%;font-size:0.7rem;padding:0.35rem;" onclick="deleteStudioPhoto('${p.id}')">🗑 Remove</button>
@@ -2752,6 +2963,47 @@ async function deleteStudioPhoto(photoId) {
     const card = document.getElementById(`studio-card-${photoId}`);
     if (card) card.remove();
   } catch(e) { showToast('Error removing photo'); }
+}
+
+// ══════════════════════════════════════════
+//  WATERMARK TOGGLE
+// ══════════════════════════════════════════
+function setWatermark(enabled) {
+  watermarkEnabled = enabled;
+  const enableBtn  = document.getElementById('wm-enable-btn');
+  const disableBtn = document.getElementById('wm-disable-btn');
+  const status     = document.getElementById('wm-status');
+  if (!enableBtn) return;
+  if (enabled) {
+    enableBtn.style.background  = 'var(--gold)';
+    enableBtn.style.color       = 'white';
+    enableBtn.style.borderColor = 'var(--gold)';
+    disableBtn.style.background = 'var(--cream)';
+    disableBtn.style.color      = 'var(--soft-gray)';
+    disableBtn.style.borderColor = 'var(--border)';
+    status.textContent = '🔒 Watermark: Enabled — your studio name will appear on uploaded photos';
+    status.style.color = 'var(--gold)';
+    showToast('Watermark enabled — studio name will be applied');
+  } else {
+    disableBtn.style.background  = 'var(--danger)';
+    disableBtn.style.color       = 'white';
+    disableBtn.style.borderColor = 'var(--danger)';
+    enableBtn.style.background   = 'var(--cream)';
+    enableBtn.style.color        = 'var(--soft-gray)';
+    enableBtn.style.borderColor  = 'var(--border)';
+    status.textContent = '🔓 Watermark: Disabled — photos will upload without watermark';
+    status.style.color = 'var(--danger)';
+    showToast('Watermark disabled');
+  }
+}
+
+async function applyWatermarkToUrl(imageUrl) {
+  // Cloudinary transformation: overlay studio name as watermark text
+  if (!watermarkEnabled || !imageUrl || !imageUrl.includes('cloudinary.com')) return imageUrl;
+  const studioName = (currentStudio.displayName || currentStudio.name || 'Studio').replace(/[^a-zA-Z0-9 ]/g, '');
+  // Insert Cloudinary text overlay transformation
+  const overlayText = encodeURIComponent(studioName);
+  return imageUrl.replace('/upload/', `/upload/l_text:Arial_28_bold:${overlayText},co_white,o_60,g_south_east,x_15,y_15/`);
 }
 
 // ══════════════════════════════════════════
@@ -2781,18 +3033,27 @@ async function handleFileUpload(event) {
   for (const file of files) {
     status.textContent = `Uploading ${done + 1} of ${files.length}…`;
     try {
-      const url = await uploadToCloudinary(file, `wedding-studio/${projectId}/${category}`);
+      let url = await uploadToCloudinary(file, `wedding-studio/${currentStudio.code}/${projectId}/${category}`);
       if (url) {
+        // Apply watermark transformation via Cloudinary URL if enabled
+        const finalUrl = watermarkEnabled ? await applyWatermarkToUrl(url) : url;
         await sbFetch('photos', {
           method: 'POST',
-          body: JSON.stringify({ project_id: projectId, category, url, public_id: '' })
+          body: JSON.stringify({
+            project_id: projectId,
+            category,
+            url: finalUrl,
+            public_id: '',
+            studio_code: currentStudio.code,
+            watermarked: watermarkEnabled
+          })
         });
       }
     } catch(e) { console.error(e); }
     done++;
     fill.style.width = `${(done / files.length) * 100}%`;
   }
-  status.textContent = `✅ ${done} photo(s) uploaded!`;
+  status.textContent = `✅ ${done} photo(s) uploaded!${watermarkEnabled ? ' (with watermark)' : ''}`;
   event.target.value = '';
   setTimeout(() => { progress.style.display = 'none'; fill.style.width = '0%'; }, 3000);
 }
@@ -3502,6 +3763,146 @@ function resetStudioContactToPlatform() {
   document.getElementById('studio-whatsapp').value = PLATFORM_WHATSAPP;
   document.getElementById('studio-email').value    = PLATFORM_EMAIL;
   showToast('Platform admin details loaded — tap Save to confirm');
+}
+
+// ══════════════════════════════════════════
+//  ENQUIRY PACKAGES
+// ══════════════════════════════════════════
+const ENQUIRY_PACKAGES = [
+  { id: 'standard',   label: 'Standard Package',      icon: '⭐' },
+  { id: 'silver',     label: 'Silver Package',         icon: '🥈' },
+  { id: 'gold',       label: 'Gold Package',           icon: '🥇' },
+  { id: 'platinum',   label: 'Platinum Package',       icon: '💎' },
+  { id: 'extraprem',  label: 'Extra Premium Package',  icon: '👑' },
+  { id: 'customized', label: 'Customized Package',     icon: '✨' },
+];
+
+// Store: enquiryPhotos[packageId] = [ { name, dataUrl } ]
+let enquiryPhotos = {};
+
+function loadEnquiryPhotos() {
+  const saved = lsGet('enquiry_photos');
+  enquiryPhotos = saved || {};
+}
+
+function saveEnquiryPhotos() {
+  lsSet('enquiry_photos', enquiryPhotos);
+}
+
+function renderEnquiryPackages() {
+  loadEnquiryPhotos();
+  const container = document.getElementById('enquiry-packages-list');
+  if (!container) return;
+
+  container.innerHTML = ENQUIRY_PACKAGES.map(pkg => {
+    const photos = enquiryPhotos[pkg.id] || [];
+    const thumbs = photos.map((p, i) => `
+      <div style="position:relative;display:inline-block;margin:0.2rem;">
+        <img src="${p.dataUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" />
+        <button onclick="removeEnquiryPhoto('${pkg.id}',${i})" style="position:absolute;top:-5px;right:-5px;background:var(--danger);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      </div>`).join('');
+
+    return `
+    <div class="owner-card" style="margin-bottom:0.85rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+        <h3 style="margin:0;">${pkg.icon} ${pkg.label}</h3>
+        <span style="font-size:0.7rem;color:var(--soft-gray);">${photos.length} photo${photos.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div id="enquiry-thumbs-${pkg.id}" style="display:flex;flex-wrap:wrap;gap:0.2rem;margin-bottom:0.75rem;min-height:20px;">
+        ${thumbs || '<span style="font-size:0.78rem;color:var(--soft-gray);">No photos yet</span>'}
+      </div>
+      <label style="display:inline-block;cursor:pointer;">
+        <input type="file" accept="image/*" multiple style="display:none;" onchange="handleEnquiryUpload(event,'${pkg.id}')" />
+        <span class="btn-small">📷 Upload Photos</span>
+      </label>
+    </div>`;
+  }).join('');
+
+  // Update share link
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareLink = `${baseUrl}?enquiry=view`;
+  const linkEl = document.getElementById('enquiry-share-link');
+  if (linkEl) linkEl.textContent = shareLink;
+  window._enquiryShareLink = shareLink;
+}
+
+function handleEnquiryUpload(event, pkgId) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  if (!enquiryPhotos[pkgId]) enquiryPhotos[pkgId] = [];
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      enquiryPhotos[pkgId].push({ name: file.name, dataUrl: e.target.result });
+      loaded++;
+      if (loaded === files.length) {
+        saveEnquiryPhotos();
+        renderEnquiryPackages();
+        showToast(`✅ ${loaded} photo${loaded > 1 ? 's' : ''} added to ${pkgId}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function removeEnquiryPhoto(pkgId, index) {
+  if (!enquiryPhotos[pkgId]) return;
+  enquiryPhotos[pkgId].splice(index, 1);
+  saveEnquiryPhotos();
+  renderEnquiryPackages();
+}
+
+function copyEnquiryLink() {
+  const link = window._enquiryShareLink || '';
+  if (!link) return;
+  navigator.clipboard.writeText(link).then(() => showToast('✅ Enquiry link copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = link; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Link copied!');
+  });
+}
+
+// Check if URL has ?enquiry=view and show client-facing enquiry page
+function checkEnquiryRoute() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('enquiry') !== 'view') return false;
+  loadEnquiryPhotos();
+  document.body.innerHTML = buildEnquiryClientPage();
+  return true;
+}
+
+function buildEnquiryClientPage() {
+  const packages = ENQUIRY_PACKAGES.map(pkg => {
+    const photos = enquiryPhotos[pkg.id] || [];
+    const thumbsHtml = photos.length
+      ? photos.map(p => `<img src="${p.dataUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:0.5rem;" />`).join('')
+      : '<p style="color:#888;font-size:0.82rem;text-align:center;padding:1rem 0;">No sample photos yet</p>';
+    return `
+      <div style="background:white;border-radius:12px;padding:1.2rem;margin-bottom:1rem;border:1px solid #e8e2d9;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="font-size:1.1rem;font-weight:500;margin-bottom:0.75rem;">${pkg.icon} ${pkg.label}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;">${thumbsHtml}</div>
+      </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Enquiry — Wedding Packages</title>
+<style>
+  body { font-family: 'DM Sans', sans-serif; background: #FAF7F2; color: #2C2C2C; margin: 0; padding: 1rem; }
+  h1 { font-family: Georgia, serif; font-size: 1.6rem; font-weight: 300; color: #C9A96E; text-align: center; margin-bottom: 0.25rem; }
+  p.sub { text-align:center; color: #8A8580; font-size: 0.82rem; margin-bottom: 1.5rem; }
+  .wa-btn { display:block; background:#25D366; color:white; text-align:center; padding:0.85rem; border-radius:10px; text-decoration:none; font-weight:500; margin-top:1.5rem; font-size:0.95rem; }
+</style></head>
+<body>
+  <h1>Wedding Photography Packages</h1>
+  <p class="sub">View our packages below and contact us to book your favourite one.</p>
+  ${packages}
+  <a class="wa-btn" href="https://wa.me/?text=Hi%2C%20I%20viewed%20your%20packages%20and%20I%20am%20interested." target="_blank">📲 Contact Us on WhatsApp</a>
+</body></html>`;
 }
 
 // ══════════════════════════════════════════
