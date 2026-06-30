@@ -1146,6 +1146,80 @@ select option {
 }
 .lightbox.open { display: flex; }
 
+/* Photo Properties (long-press) modal */
+.props-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 6000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+.props-overlay.open { display: flex; }
+.props-card {
+  background: var(--card, #1A202B);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 1.1rem 1.1rem 1.3rem;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+.props-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.props-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.props-close {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: inherit;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.props-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  padding: 0.42rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.props-row:last-of-type { border-bottom: none; }
+.props-label { color: var(--soft-gray); flex-shrink: 0; }
+.props-value { text-align: right; word-break: break-word; font-weight: 500; }
+.props-actions {
+  margin-top: 0.85rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.props-actions button {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+}
+
+
 .lightbox-header {
   position: absolute;
   top: 0;
@@ -2413,6 +2487,13 @@ const SUPABASE_KEY  = 'sb_publishable_ANc-XNw0l6wtvzlANX9Jmw_Lj0MFqe-';
 const CLOUDINARY_CLOUD  = 'dohnwz2ix';
 const CLOUDINARY_PRESET = 'wedding_studio';
 
+// Encode a small metadata object into a safe HTML attribute for the long-press "Photo Properties" feature
+function pmAttr(obj) {
+  try {
+    return `data-pm="${encodeURIComponent(JSON.stringify(obj))}"`;
+  } catch(e) { return ''; }
+}
+
 // ── Platform defaults (overridden by localStorage settings) ──
 let PLATFORM_ADMIN_USER = 'Rishiani';
 let PLATFORM_ADMIN_PASS = 'Rishiani@3102';
@@ -3035,7 +3116,7 @@ async function openStatDetail(type) {
             <div class="photo-grid" style="grid-template-columns:repeat(3,1fr);">
               ${phs.map((ph, i) => `
                 <div class="photo-card" id="admin-photo-${ph.id}">
-                  <div class="photo-img-wrap" onclick="openLightbox(${JSON.stringify(phs.map(x=>x.url))},${i},'${ph.category}')">
+                  <div class="photo-img-wrap" ${pmAttr({id:ph.id,category:ph.category,url:ph.url,created_at:ph.created_at,watermarked:ph.watermarked,project:proj?proj.name:'Unknown'})} onclick="openLightbox(${JSON.stringify(phs.map(x=>x.url))},${i},'${ph.category}')">
                     <img src="${ph.url}" loading="lazy"/>
                     <div class="photo-zoom-hint">🔍</div>
                   </div>
@@ -3787,7 +3868,7 @@ function renderOwnerSelections(sels, clientPhotos, el) {
 
     const photoGrid = items.map((sel, idx) => `
       <div class="photo-card" style="position:relative;">
-        <div class="photo-img-wrap" onclick="openOwnerSelPhoto('${s.key}',${idx})">
+        <div class="photo-img-wrap" ${pmAttr({id:sel.photo_id,category:sel.photos?.category||s.key,url:sel.photos?.url,created_at:sel.photos?.created_at,watermarked:sel.photos?.watermarked})} onclick="openOwnerSelPhoto('${s.key}',${idx})">
           ${sel.photos?.url ? `<img src="${ownerPicksUrl(sel.photos.url)}" loading="lazy" />` : ''}
           <div class="photo-zoom-hint">🔍 View</div>
         </div>
@@ -4060,7 +4141,7 @@ function renderPhotoGrid() {
 
     return `
       <div class="photo-card ${borderClass}" id="card-${photo.id}">
-        <div class="photo-img-wrap" onclick="openLightboxFromGrid(${idx})">
+        <div class="photo-img-wrap" ${pmAttr({id:photo.id,category:photo.category,url:photo.url,created_at:photo.created_at,watermarked:photo.watermarked})} onclick="openLightboxFromGrid(${idx})">
           <img src="${photo.url}" loading="lazy" onerror="this.src=this.src.includes('/upload/l_')? this.src.replace(/\\/upload\\/[^/]+\\//,'/upload/') : this.src" />
           <div class="photo-zoom-hint">🔍 View</div>
           <div class="photo-badges">
@@ -4273,7 +4354,7 @@ function renderClientSelections() {
             <label style="position:absolute;top:0.4rem;left:0.4rem;z-index:3;cursor:pointer;">
               <input type="checkbox" class="client-sel-chk-${s.key}" data-id="${photo.id}" onchange="clientSelOnCheck('${s.key}','${photo.id}',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);" />
             </label>` : ''}
-            <div class="photo-img-wrap" onclick="openClientSelLightbox('${s.key}', ${idx})">
+            <div class="photo-img-wrap" ${pmAttr({id:photo.id,category:photo.category,url:photo.url,created_at:photo.created_at,watermarked:photo.watermarked})} onclick="openClientSelLightbox('${s.key}', ${idx})">
               <img src="${photo.url}" loading="lazy" />
               <div class="photo-zoom-hint">🔍 View</div>
             </div>
@@ -4411,7 +4492,7 @@ async function loadClientOwnPhotos() {
     }
     el.innerHTML = `<div class="photo-grid">${data.map((p,i) => `
       <div class="photo-card" id="client-own-card-${p.id}">
-        <div class="photo-img-wrap" onclick="openClientOwnPhoto(${i})">
+        <div class="photo-img-wrap" ${pmAttr({id:p.id,category:p.category,url:p.url,created_at:p.created_at,watermarked:p.watermarked})} onclick="openClientOwnPhoto(${i})">
           <img src="${p.url}" loading="lazy" />
           <div class="photo-zoom-hint">🔍 View</div>
         </div>
@@ -5399,7 +5480,7 @@ function renderStudioCatPhotosWithSelect(photos) {
       <label style="position:absolute;top:0.4rem;left:0.4rem;z-index:3;cursor:pointer;">
         <input type="checkbox" class="studio-photo-chk" data-id="${p.id}" onchange="onStudioPhotoCheck('${p.id}', this.checked)" style="width:18px;height:18px;accent-color:var(--gold);" />
       </label>
-      <div class="photo-img-wrap" onclick="openStudioCatPhoto(${i})">
+      <div class="photo-img-wrap" ${pmAttr({id:p.id,category:p.category,url:p.url,created_at:p.created_at,watermarked:p.watermarked})} onclick="openStudioCatPhoto(${i})">
         <img src="${p.url}" loading="lazy" />
         <div class="photo-zoom-hint">🔍 View</div>
         ${p.watermarked ? `<div style="position:absolute;top:0.3rem;right:0.3rem;background:rgba(201,169,110,0.9);color:white;border-radius:4px;font-size:0.6rem;padding:0.15rem 0.3rem;">🔒 WM</div>` : ''}
@@ -5452,7 +5533,134 @@ async function deleteSelectedStudioPhotos() {
   }
 }
 
+// ══════════════════════════════════════════
+//  PHOTO PROPERTIES (long-press on any photo)
+// ══════════════════════════════════════════
+let _ppTimer = null;
+let _ppTriggered = false;
+let _ppTargetEl = null;
+let _ppCurrentUrl = '';
+const PP_HOLD_MS = 550;
+
+function _ppFindWrap(target) {
+  return target.closest && target.closest('.photo-img-wrap[data-pm]');
+}
+
+function _ppStart(e) {
+  const wrap = _ppFindWrap(e.target);
+  if (!wrap) return;
+  _ppTargetEl = wrap;
+  _ppTriggered = false;
+  clearTimeout(_ppTimer);
+  _ppTimer = setTimeout(() => {
+    _ppTriggered = true;
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e){} }
+    showPhotoProperties(wrap);
+  }, PP_HOLD_MS);
+}
+
+function _ppCancel() {
+  clearTimeout(_ppTimer);
+  _ppTargetEl = null;
+}
+
+function _ppMove(e) {
+  // Cancel long-press if the finger/mouse moves too much (likely a scroll)
+  clearTimeout(_ppTimer);
+}
+
+document.addEventListener('touchstart', _ppStart, { passive: true });
+document.addEventListener('touchend', _ppCancel, { passive: true });
+document.addEventListener('touchmove', _ppMove, { passive: true });
+document.addEventListener('mousedown', _ppStart);
+document.addEventListener('mouseup', _ppCancel);
+document.addEventListener('mouseleave', _ppCancel);
+
+// Suppress the normal click (which would open the lightbox) right after a long-press fires
+document.addEventListener('click', (e) => {
+  if (_ppTriggered && _ppFindWrap(e.target)) {
+    e.preventDefault();
+    e.stopPropagation();
+    _ppTriggered = false;
+  }
+}, true);
+
+function fmtBytes(bytes) {
+  if (!bytes || isNaN(bytes)) return 'Unknown';
+  const units = ['B','KB','MB','GB'];
+  let i = 0, n = bytes;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  return `${n.toFixed(n < 10 && i > 0 ? 2 : 0)} ${units[i]}`;
+}
+
+function showPhotoProperties(wrapEl) {
+  let meta = {};
+  try { meta = JSON.parse(decodeURIComponent(wrapEl.getAttribute('data-pm') || '{}')); } catch(e) {}
+  const img = wrapEl.querySelector('img');
+  _ppCurrentUrl = meta.url || (img ? img.src : '');
+
+  const rows = [];
+  rows.push(['Category', meta.category || '—']);
+  if (meta.project) rows.push(['Project', meta.project]);
+  rows.push(['Uploaded', meta.created_at ? new Date(meta.created_at).toLocaleString('en-IN') : 'Unknown']);
+  rows.push(['Watermarked', meta.watermarked ? '🔒 Yes' : 'No']);
+  rows.push(['Dimensions', (img && img.naturalWidth) ? `${img.naturalWidth} × ${img.naturalHeight}px` : 'Loading…']);
+  rows.push(['Photo ID', meta.id ? String(meta.id).slice(0, 12) + (String(meta.id).length > 12 ? '…' : '') : '—']);
+
+  const body = document.getElementById('props-body');
+  body.innerHTML = rows.map(([label, value]) => `
+    <div class="props-row"><span class="props-label">${label}</span><span class="props-value">${value}</span></div>
+  `).join('');
+
+  document.getElementById('props-overlay').classList.add('open');
+
+  // If the dimensions weren't ready yet (lazy-loaded image), fetch them via a fresh Image and update live
+  if (!(img && img.naturalWidth) && _ppCurrentUrl) {
+    const probe = new Image();
+    probe.onload = () => {
+      const dimRow = body.querySelectorAll('.props-row')[4];
+      if (dimRow) dimRow.querySelector('.props-value').textContent = `${probe.naturalWidth} × ${probe.naturalHeight}px`;
+    };
+    probe.src = _ppCurrentUrl;
+  }
+
+  // Try to fetch the file size via a HEAD request (best-effort; Cloudinary usually allows this)
+  if (_ppCurrentUrl) {
+    fetch(_ppCurrentUrl, { method: 'HEAD' }).then(res => {
+      const len = res.headers.get('content-length');
+      if (len) {
+        const row = document.createElement('div');
+        row.className = 'props-row';
+        row.innerHTML = `<span class="props-label">File Size</span><span class="props-value">${fmtBytes(parseInt(len))}</span>`;
+        body.appendChild(row);
+      }
+    }).catch(() => {});
+  }
+}
+
+function closePhotoProps() {
+  document.getElementById('props-overlay').classList.remove('open');
+}
+
+function copyPhotoPropUrl() {
+  if (!_ppCurrentUrl) return;
+  navigator.clipboard.writeText(_ppCurrentUrl).then(() => showToast('✅ URL copied')).catch(() => showToast('Could not copy URL'));
+}
+
 loadPlatformSettings();
 </script>
+  <div class="props-overlay" id="props-overlay" onclick="if(event.target===this) closePhotoProps()">
+    <div class="props-card" onclick="event.stopPropagation()">
+      <div class="props-card-header">
+        <div class="props-card-title">📋 Photo Properties</div>
+        <button class="props-close" onclick="closePhotoProps()">✕</button>
+      </div>
+      <div id="props-body"></div>
+      <div class="props-actions">
+        <button onclick="copyPhotoPropUrl()">🔗 Copy URL</button>
+        <button onclick="closePhotoProps()">Close</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
